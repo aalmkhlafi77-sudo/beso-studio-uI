@@ -1,0 +1,7 @@
+@import "tailwindcss";
+
+/* Force rich dark styling and contrasting gold-cream text on native select options */
+select option {
+  background-color: #081711 !important;
+  color: #fff8e7 !important;
+}

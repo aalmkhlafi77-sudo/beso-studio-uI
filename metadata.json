@@ -1,0 +1,6 @@
+{
+  "name": "Beso Studio UI",
+  "description": "استوديو ويب احترافي لتصميم وتخصيص الخامات المادية المتقدمة (زجاجي، معدني، عاجي، نيون) وتوليد كود HTML وCSS نظيف ومستقل للمعاينة والاستخدام المباشر.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Beso Studio UI V0.2 — محرك الخامات والفيزياء المادية المتقدمة</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      background: radial-gradient(ellipse at 84% 0%, rgba(13,59,46,.5), transparent 38%),
+                  radial-gradient(ellipse at 54% 48%, rgba(74,21,75,.12), transparent 42%),
+                  radial-gradient(ellipse at 5% 100%, rgba(212,175,55,.08), transparent 30%),
+                  linear-gradient(135deg, #030907 0%, #05140e 50%, #020604 100%);
+      font-family: system-ui, -apple-system, sans-serif;
+      padding: 40px 20px;
+      color: #EAE5D9;
+      gap: 36px;
+    }
+    .header-banner {
+      text-align: center;
+      max-width: 700px;
+    }
+    .header-badge {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 99px;
+      border: 1px solid rgba(212, 175, 55, 0.4);
+      background: rgba(16, 37, 28, 0.7);
+      color: #D4AF37;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      margin-bottom: 12px;
+    }
+    .title {
+      color: #FFF8E7;
+      font-size: 24px;
+      font-weight: 800;
+      margin-bottom: 8px;
+    }
+    .subtitle {
+      color: #A8B7AD;
+      font-size: 13px;
+      line-height: 1.6;
+    }
+    .test-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 28px;
+      max-width: 1200px;
+      width: 100%;
+    }
+    .sample-box {
+      padding: 36px 28px;
+      border-radius: 24px;
+      background: rgba(15, 35, 26, 0.85);
+      border: 1px solid rgba(212, 175, 55, 0.25);
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.45);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 20px;
+      text-align: center;
+    }
+    .sample-tag {
+      font-size: 11px;
+      color: #D4AF37;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+    }
+
+    /* === 1. Glassmorphism Button (زجاجي بلوري) === */
+    .beso-btn-glass {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      padding: 14px 32px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      outline: none;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      background: rgba(22, 21, 127, 0.45);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(212, 175, 55, 0.4);
+      border-radius: 14px;
+      color: #ffffff;
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+    }
+    .beso-btn-glass:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 14px 32px rgba(0, 0, 0, 0.55), 0 0 24px rgba(212, 175, 55, 0.45);
+    }
+    .beso-btn-glass:active {
+      transform: translateY(2px);
+    }
+
+    /* === 2. Brushed Metal Button (معدن مصقول) === */
+    .beso-btn-metal {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      padding: 14px 32px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      outline: none;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      background: linear-gradient(145deg, rgba(255, 255, 255, 0.35) 0%, #16157f 45%, rgba(0, 0, 0, 0.75) 100%);
+      border: 1px solid #d4af37;
+      border-radius: 14px;
+      color: #d4af37;
+      box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.85), inset 0 -2px 4px rgba(0, 0, 0, 0.8), 0 8px 16px rgba(0, 0, 0, 0.55);
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.85);
+    }
+    .beso-btn-metal:hover {
+      transform: translateY(-4px);
+      box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.9), 0 12px 28px rgba(0, 0, 0, 0.65), 0 0 20px rgba(212, 175, 55, 0.4);
+    }
+    .beso-btn-metal:active {
+      transform: translateY(2px);
+    }
+
+    /* === 3. Soft Ivory Card (عاجي ناعم) === */
+    .beso-card-ivory {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      padding: 24px;
+      max-width: 340px;
+      width: 100%;
+      text-align: right;
+      background: #eae5d9;
+      border: 1px solid #ffffff;
+      border-radius: 18px;
+      color: #1e2022;
+      box-shadow: 4px 4px 12px rgba(0, 0, 0, 0.25), -4px -4px 12px rgba(255, 255, 255, 0.85);
+      transition: all 0.3s ease;
+    }
+    .beso-card-ivory:hover {
+      transform: translateY(-4px);
+      box-shadow: 6px 6px 18px rgba(0, 0, 0, 0.3), -6px -6px 18px rgba(255, 255, 255, 0.95);
+    }
+    .beso-card-title {
+      font-size: 18px;
+      font-weight: 700;
+    }
+    .beso-card-desc {
+      font-size: 13px;
+      line-height: 1.6;
+      opacity: 0.85;
+    }
+
+    /* === 4. Cyber Neon Input (نيون سايبر) === */
+    .beso-field-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      width: 100%;
+      max-width: 320px;
+      text-align: right;
+    }
+    .beso-field-label {
+      font-size: 13px;
+      font-weight: 600;
+      color: #ffffff;
+    }
+    .beso-input-neon {
+      width: 100%;
+      padding: 14px 18px;
+      background: rgba(22, 21, 127, 0.25);
+      border: 2px solid #00ffcc;
+      border-radius: 12px;
+      color: #ffffff;
+      font-size: 15px;
+      outline: none;
+      box-shadow: 0 0 16px rgba(0, 255, 204, 0.5), inset 0 0 8px rgba(0, 255, 204, 0.35);
+      transition: all 0.3s ease;
+    }
+
+    /* === 5. Tactile Social Dock === */
+    .beso-social-dock {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 18px;
+      border-radius: 20px;
+      background: rgba(3, 9, 7, 0.65);
+      border: 1px solid rgba(212, 175, 55, 0.3);
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(16px);
+    }
+    .beso-social-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      background: rgba(22, 21, 127, 0.45);
+      border: 1px solid rgba(212, 175, 55, 0.4);
+      color: #d4af37;
+      text-decoration: none;
+      transition: all 0.3s ease;
+    }
+    .beso-social-btn:hover {
+      transform: translateY(-4px) scale(1.08);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.6), 0 0 18px rgba(212, 175, 55, 0.65);
+    }
+  </style>
+</head>
+<body>
+  <div class="header-banner">
+    <div class="header-badge">BESO MATERIAL PHYSICS ENGINE · V0.2</div>
+    <h1 class="title">استوديو الخامات والفيزياء المادية المتقدمة</h1>
+    <p class="subtitle">أسطح مادية ملموسة (زجاجي بلوري، معدن مصقول، عاجي ناعم، نيون إلكتروني) لكافة مكونات الويب الحديثة.</p>
+  </div>
+
+  <div class="test-grid">
+    <!-- 1. Glassmorphism Button -->
+    <div class="sample-box">
+      <span class="sample-tag">سطح زجاجي بلوري (Glassmorphism)</span>
+      <button class="beso-btn-glass" type="button">
+        <span>تفاعل ملموس ✦</span>
+      </button>
+    </div>
+
+    <!-- 2. Brushed Metal Button -->
+    <div class="sample-box">
+      <span class="sample-tag">معدن وكروم مصقول (Brushed Metal)</span>
+      <button class="beso-btn-metal" type="button">
+        <span>تفاعل معدني ⚙️</span>
+      </button>
+    </div>
+
+    <!-- 3. Soft Ivory Card -->
+    <div class="sample-box">
+      <span class="sample-tag">عاجي منحوت بالظلال (Soft Ivory)</span>
+      <article class="beso-card-ivory">
+        <h3 class="beso-card-title">بطاقة Beso العاجية</h3>
+        <p class="beso-card-desc">تجسيم ناعم بالضوء الطبيعي وظلال فيزيائية مزدوجة.</p>
+      </article>
+    </div>
+
+    <!-- 4. Cyber Neon Input -->
+    <div class="sample-box">
+      <span class="sample-tag">نيون سايبر مشع (Cyber Neon)</span>
+      <div class="beso-field-group">
+        <label class="beso-field-label">حقل مضيء فائق النقاء</label>
+        <input class="beso-input-neon" type="text" placeholder="اكتب في الحقل النيوني..." />
+      </div>
+    </div>
+
+    <!-- 5. Social Dock -->
+    <div class="sample-box" style="grid-column: 1 / -1;">
+      <span class="sample-tag">منصة تواصل مادية تفاعلية (Social Media Dock)</span>
+      <div class="beso-social-dock">
+        <a href="#" class="beso-social-btn" aria-label="X">X</a>
+        <a href="#" class="beso-social-btn" aria-label="GitHub">Git</a>
+        <a href="#" class="beso-social-btn" aria-label="LinkedIn">In</a>
+        <a href="#" class="beso-social-btn" aria-label="Telegram">TG</a>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
