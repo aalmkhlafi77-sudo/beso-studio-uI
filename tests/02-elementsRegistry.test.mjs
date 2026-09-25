@@ -5,7 +5,7 @@ import { ELEMENTS_CONFIG, createInitialWorkspaceState } from '../src/data/elemen
 test('workspace exposes the planned core elements and keeps later engines visible', () => {
   assert.deepEqual(
     ELEMENTS_CONFIG.filter((element) => element.status === 'active').map((element) => element.id),
-    ['button', 'card', 'input', 'badge', 'social']
+    ['cyber-card', 'action-send-btn', 'conic-glow-btn', 'frutiger-aero-btn', 'space-orbit-btn', 'adaptive-morph-btn', 'button', 'card', 'input', 'badge', 'social']
   );
   assert.deepEqual(
     ELEMENTS_CONFIG.filter((element) => element.status === 'coming_soon').map((element) => element.id),
@@ -13,12 +13,12 @@ test('workspace exposes the planned core elements and keeps later engines visibl
   );
 });
 
-test('workspace defaults select the button and keep independent module values', () => {
+test('workspace defaults select the cyber-card and keep independent module values', () => {
   const first = createInitialWorkspaceState();
   first.elementParams.card.title = 'Changed';
   const second = createInitialWorkspaceState();
 
-  assert.equal(first.activeElement, 'button');
+  assert.equal(first.activeElement, 'cyber-card');
   assert.equal(second.elementParams.card.title, 'بطاقة Beso الفاخرة');
   assert.equal(second.elementParams.input.placeholder, 'ادخل بريدك هنا...');
   assert.equal(second.elementParams.badge.label, 'عنصر فاخر VIP');

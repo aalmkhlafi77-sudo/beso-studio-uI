@@ -8,12 +8,75 @@ import {
 } from "./effects.js";
 
 export const ELEMENTS_CONFIG = [
+  // 💎 Premium Components Category
+  {
+    id: "cyber-card",
+    label: "بطاقة 3D التفاعلية",
+    subLabel: "3D Cyber Card",
+    glyph: "⚡",
+    status: "active",
+    category: "premium",
+    badge: "3D GRID",
+    description: "بطاقة سايبر مجسمة تتفاعل وتتحرك بزوايا 3D بالاعتماد على شبكة 3x3 غير مرئية دون جافاسكريبت.",
+  },
+  {
+    id: "action-send-btn",
+    label: "زر الإرسال الحركي",
+    subLabel: "Action Send Button",
+    glyph: "✈",
+    status: "active",
+    category: "premium",
+    badge: "WAVE & FLY",
+    description: "زر إرسال متعدد الحالات مع تموج الحروف وحركة طيران الأيقونة وتحول الحالة إلى تم الإرسال.",
+  },
+  {
+    id: "conic-glow-btn",
+    label: "زر الهالة المضيئة",
+    subLabel: "Conic Glow Button",
+    glyph: "🌀",
+    status: "active",
+    category: "premium",
+    badge: "CONIC LED",
+    description: "زر بهالة ضوئية دوارة 360° ونصوص ملونة متدرجة ومشعّة.",
+  },
+  {
+    id: "frutiger-aero-btn",
+    label: "زر الزجاج البلوري Aero",
+    subLabel: "Frutiger Aero Glass Button",
+    glyph: "💎",
+    status: "active",
+    category: "premium",
+    badge: "AERO GLASS",
+    description: "زر زجاجي بلوري لامع بطبقات عاكسة وميض ضوئي فائق الانعكاس على السطح.",
+  },
+  {
+    id: "space-orbit-btn",
+    label: "زر التوهج الفضائي Space",
+    subLabel: "Space Galaxy Orbit Button",
+    glyph: "🌌",
+    status: "active",
+    category: "premium",
+    badge: "SPACE ORBIT",
+    description: "زر كوني بحواف متغيرة كهرومغناطيسية، حقل نجوم متحرك وهالة ضوئية متوهجة.",
+  },
+  {
+    id: "adaptive-morph-btn",
+    label: "الزر التكيفي المتوسع Morph",
+    subLabel: "Adaptive Morphing Shell",
+    glyph: "🚀",
+    status: "active",
+    category: "premium",
+    badge: "SMART MORPH",
+    description: "زر أيقوني ذكي مضغوط يتكيف ويتوسع أفقيًا بنعومة وسلاسة عند مرور المؤشر ليكشف النص.",
+  },
+  // ⚡ Standard Core Category
   {
     id: "button",
     label: "الأزرار",
     subLabel: "Buttons",
     glyph: "↗",
     status: "active",
+    category: "standard",
     description: "أنشئ زرًا ملموسًا فخمًا بتأثيرات الأسطح وانعكاسات الكروم والفيزياء التفاعلية.",
   },
   {
@@ -22,6 +85,7 @@ export const ELEMENTS_CONFIG = [
     subLabel: "Cards",
     glyph: "▱",
     status: "active",
+    category: "standard",
     description: "أنشئ بطاقة فاخرة بانعكاسات ضوئية وظلال مزدوجة وشارة VIP.",
   },
   {
@@ -30,6 +94,7 @@ export const ELEMENTS_CONFIG = [
     subLabel: "Inputs",
     glyph: "⌁",
     status: "active",
+    category: "standard",
     description: "حقل إدخال بتأثير حفر غائر وميض تركيز ذهبي فائق النقاء.",
   },
   {
@@ -38,6 +103,7 @@ export const ELEMENTS_CONFIG = [
     subLabel: "Badges",
     glyph: "◉",
     status: "active",
+    category: "standard",
     description: "شارة فخمة VIP بنمط زجاجي أو معدني أو نيون مع نقطة مضيئة.",
   },
   {
@@ -46,6 +112,7 @@ export const ELEMENTS_CONFIG = [
     subLabel: "Social Dock",
     glyph: "✦",
     status: "active",
+    category: "standard",
     description: "منصة أيقونات تواصل تفاعلية مجسمة بأبعاد مادية وضغط ميكانيكي.",
   },
   {
@@ -54,6 +121,7 @@ export const ELEMENTS_CONFIG = [
     subLabel: "Hero Engine",
     glyph: "✧",
     status: "coming_soon",
+    category: "standard",
     description: "محرك إنشاء خلفيات الأقسام الرئيسية قادم لاحقًا.",
   },
   {
@@ -62,6 +130,7 @@ export const ELEMENTS_CONFIG = [
     subLabel: "Particles",
     glyph: "✳",
     status: "coming_soon",
+    category: "standard",
     description: "محرك الجسيمات والتأثيرات المتحركة قادم لاحقًا.",
   },
 ];
@@ -69,7 +138,7 @@ export const ELEMENTS_CONFIG = [
 export const createInitialWorkspaceState = () => {
   const effectState = createInitialEffectState();
   return {
-    activeElement: "button",
+    activeElement: "cyber-card",
     buttonState: effectState,
     dimensions: { ...initialDimensions },
     lighting: { ...initialLighting },

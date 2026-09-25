@@ -177,7 +177,7 @@ export const initialAnimations = {
 };
 
 export const initialEffectState = {
-  activeElement: "button",
+  activeElement: "cyber-card", // Premium options: cyber-card, action-send-btn, conic-glow-btn, frutiger-aero-btn, space-orbit-btn, adaptive-morph-btn alongside button, card, input, badge, social
 
   dimensions: { ...initialDimensions },
   lighting: { ...initialLighting },

@@ -403,6 +403,754 @@ export function generateElementCode(elementIdOrState, maybeState) {
   100% { opacity: 1; transform: scale(1); }
 }`;
 
+  // 0. PREMIUM 1: CYBER 3D TILT CARD (Pure CSS Tracker Grid)
+  if (elementId === "cyber-card") {
+    const title = escapeHtml(typography.titleText || "بطاقة سايبر 3D التفاعلية");
+    const desc = escapeHtml(typography.descText || "بطاقة مجسمة تتفاعل مع حركة المؤشر باستخدام شبكة مسارات 3D نقية دون جافاسكريبت.");
+    const widthRule = `${dimensions.width}px`;
+    const heightRule = dimensions.height === "auto" ? "240px" : `${dimensions.height}px`;
+
+    const css = `.beso-3d-container {
+  width: ${widthRule};
+  max-width: 100%;
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 0 auto;
+  font-family: inherit;
+  animation: besoEntrance-${animations.entranceAnimation} 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.beso-3d-container .canvas {
+  position: relative;
+  width: 100%;
+  min-height: ${heightRule};
+  perspective: 1000px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(3, 1fr);
+  transform-style: preserve-3d;
+}
+
+/* 9 Invisible CSS Trackers */
+.beso-3d-container .tracker {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  z-index: 15;
+  cursor: pointer;
+}
+
+.beso-3d-container .tr-1 { grid-area: 1 / 1; }
+.beso-3d-container .tr-2 { grid-area: 1 / 2; }
+.beso-3d-container .tr-3 { grid-area: 1 / 3; }
+.beso-3d-container .tr-4 { grid-area: 2 / 1; }
+.beso-3d-container .tr-5 { grid-area: 2 / 2; }
+.beso-3d-container .tr-6 { grid-area: 2 / 3; }
+.beso-3d-container .tr-7 { grid-area: 3 / 1; }
+.beso-3d-container .tr-8 { grid-area: 3 / 2; }
+.beso-3d-container .tr-9 { grid-area: 3 / 3; }
+
+/* Dynamic 3D Tilt Angles via Sibling Selector */
+.beso-3d-container .tr-1:hover ~ #card { transform: rotateX(15deg) rotateY(-15deg) scale3d(1.02, 1.02, 1.02); }
+.beso-3d-container .tr-2:hover ~ #card { transform: rotateX(15deg) rotateY(0deg) scale3d(1.02, 1.02, 1.02); }
+.beso-3d-container .tr-3:hover ~ #card { transform: rotateX(15deg) rotateY(15deg) scale3d(1.02, 1.02, 1.02); }
+.beso-3d-container .tr-4:hover ~ #card { transform: rotateX(0deg) rotateY(-15deg) scale3d(1.02, 1.02, 1.02); }
+.beso-3d-container .tr-5:hover ~ #card { transform: rotateX(0deg) rotateY(0deg) scale3d(1.04, 1.04, 1.04); }
+.beso-3d-container .tr-6:hover ~ #card { transform: rotateX(0deg) rotateY(15deg) scale3d(1.02, 1.02, 1.02); }
+.beso-3d-container .tr-7:hover ~ #card { transform: rotateX(-15deg) rotateY(-15deg) scale3d(1.02, 1.02, 1.02); }
+.beso-3d-container .tr-8:hover ~ #card { transform: rotateX(-15deg) rotateY(0deg) scale3d(1.02, 1.02, 1.02); }
+.beso-3d-container .tr-9:hover ~ #card { transform: rotateX(-15deg) rotateY(15deg) scale3d(1.02, 1.02, 1.02); }
+
+#card {
+  grid-area: 1 / 1 / -1 / -1;
+  position: relative;
+  width: 100%;
+  height: 100%;
+  padding: ${dimensions.padding}px;
+  border-radius: ${dimensions.borderRadius}px;
+  ${surfaceCSSBlock.trim()}
+  text-align: ${typography.textAlign};
+  transform-style: preserve-3d;
+  transition: transform 0.22s cubic-bezier(0.25, 1, 0.5, 1), box-shadow 0.25s ease;
+  box-sizing: border-box;
+  overflow: hidden;
+  z-index: 1;
+}
+
+#card .title {
+  font-size: ${typography.titleSize}px;
+  color: ${typography.titleColor};
+  font-weight: 700;
+  margin: 0 0 10px 0;
+  transform: translateZ(35px);
+  transition: transform 0.2s ease;
+  ${textShadowCSS}
+}
+
+#card .subtitle {
+  font-size: ${typography.descSize}px;
+  color: ${typography.descColor};
+  line-height: 1.6;
+  margin: 0;
+  transform: translateZ(25px);
+  transition: transform 0.2s ease;
+}
+
+#card .glowing-elements {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  border-radius: inherit;
+  z-index: -1;
+}
+
+#card .glow-1 {
+  position: absolute;
+  top: -20%;
+  right: -20%;
+  width: 160px;
+  height: 160px;
+  border-radius: 50%;
+  background: ${hexToRgba(lighting.glowColor, 0.45)};
+  filter: blur(40px);
+  animation: cyberPulse 3s ease-in-out infinite alternate;
+}
+
+#card .card-badge-vip {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 99px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  background: ${hexToRgba(lighting.glowColor, 0.2)};
+  color: ${lighting.glowColor};
+  border: 1px solid ${hexToRgba(lighting.glowColor, 0.4)};
+  margin-bottom: 12px;
+  transform: translateZ(40px);
+}
+
+#card .card-footer-action {
+  display: flex;
+  align-items: center;
+  justify-content: ${typography.textAlign === "left" ? "flex-start" : typography.textAlign === "center" ? "center" : "flex-end"};
+  margin-top: 16px;
+  padding-top: 10px;
+  border-top: 1px solid ${hexToRgba(lighting.glowColor, 0.2)};
+  transform: translateZ(30px);
+  font-size: 12px;
+  font-weight: 600;
+  color: ${lighting.glowColor};
+}
+
+@keyframes cyberPulse {
+  0% { transform: scale(0.9); opacity: 0.5; }
+  100% { transform: scale(1.2); opacity: 0.9; filter: blur(30px); }
+}
+${entranceKeyframes}`.trim();
+
+    const html = `<div class="beso-3d-container">
+  <div class="canvas">
+    <!-- 9 trackers -->
+    <div class="tracker tr-1"></div><div class="tracker tr-2"></div><div class="tracker tr-3"></div>
+    <div class="tracker tr-4"></div><div class="tracker tr-5"></div><div class="tracker tr-6"></div>
+    <div class="tracker tr-7"></div><div class="tracker tr-8"></div><div class="tracker tr-9"></div>
+    <div id="card">
+      <span class="card-badge-vip">3D CYBER TRACKER</span>
+      <h3 class="title">${title}</h3>
+      <p class="subtitle">${desc}</p>
+      <div class="glowing-elements">
+        <div class="glow-1"></div>
+      </div>
+      <div class="card-footer-action">
+        <span>تفاعل 3D فوري ✦</span>
+      </div>
+    </div>
+  </div>
+</div>`;
+
+    return { html, css };
+  }
+
+  // 0. PREMIUM 2: ACTION SEND BUTTON (Multi-State Animation)
+  if (elementId === "action-send-btn") {
+    const rawText = typography.titleText || "إرسال البيانات";
+    const lettersSpans = Array.from(rawText).map((char, index) => {
+      if (char === " ") return `<span>&nbsp;</span>`;
+      return `<span style="--i:${index + 1}">${escapeHtml(char)}</span>`;
+    }).join("");
+
+    const buttonWidthCSS = dimensions.width === 360 ? "auto" : `${dimensions.width}px`;
+    const buttonHeightCSS = dimensions.height === "auto" ? "52px" : `${dimensions.height}px`;
+
+    const css = `.beso-action-btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: ${buttonWidthCSS};
+  height: ${buttonHeightCSS};
+  min-height: 48px;
+  padding: ${Math.round(dimensions.padding * 0.5)}px ${Math.round(dimensions.padding * 1.4)}px;
+  border-radius: ${dimensions.borderRadius}px;
+  ${surfaceCSSBlock.trim()}
+  font-family: inherit;
+  font-size: ${globalParams.fontSize || 16}px;
+  font-weight: 700;
+  color: ${typography.titleColor};
+  cursor: pointer;
+  outline: none;
+  overflow: hidden;
+  user-select: none;
+  box-sizing: border-box;
+  transition: all ${animations.transitionSpeed}s cubic-bezier(0.16, 1, 0.3, 1);
+  animation: besoEntrance-${animations.entranceAnimation} 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.beso-action-btn .state {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  height: 100%;
+  transition: transform 0.45s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.35s ease;
+}
+
+.beso-action-btn .state--default {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.beso-action-btn .state--sent {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transform: translateY(120%);
+  color: ${lighting.glowColor};
+}
+
+.beso-action-btn .icon-wrapper svg {
+  width: 20px;
+  height: 20px;
+  display: block;
+  transition: transform 0.4s ease;
+}
+
+/* Staggered wave animation on letters on hover */
+.beso-action-btn:hover .label span {
+  display: inline-block;
+  animation: wave 0.5s ease infinite alternate;
+  animation-delay: calc(var(--i) * 0.05s);
+}
+
+.beso-action-btn:hover .plane-icon svg {
+  animation: takeOff 0.9s cubic-bezier(0.45, 0, 0.55, 1) infinite;
+}
+
+/* Multi-State trigger on active/focus */
+.beso-action-btn:active .state--default,
+.beso-action-btn:focus .state--default,
+.beso-action-btn:focus-within .state--default {
+  transform: translateY(-120%);
+  opacity: 0;
+}
+
+.beso-action-btn:active .state--sent,
+.beso-action-btn:focus .state--sent,
+.beso-action-btn:focus-within .state--sent {
+  transform: translateY(0);
+  opacity: 1;
+  animation: slideDown 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+.beso-action-btn:active,
+.beso-action-btn:focus {
+  border-color: ${lighting.glowColor};
+  box-shadow: 0 0 25px ${hexToRgba(lighting.glowColor, 0.85)}, inset 0 1px 0 rgba(255, 255, 255, 0.4);
+}
+
+@keyframes wave {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(-4px); color: ${lighting.glowColor}; text-shadow: 0 0 8px ${hexToRgba(lighting.glowColor, 0.8)}; }
+}
+
+@keyframes takeOff {
+  0% { transform: translate(0, 0) rotate(0deg); opacity: 1; }
+  50% { transform: translate(14px, -14px) rotate(15deg); opacity: 0; }
+  51% { transform: translate(-14px, 14px) rotate(-15deg); opacity: 0; }
+  100% { transform: translate(0, 0) rotate(0deg); opacity: 1; }
+}
+
+@keyframes slideDown {
+  0% { transform: translateY(100%); opacity: 0; }
+  100% { transform: translateY(0); opacity: 1; }
+}
+${entranceKeyframes}`.trim();
+
+    const html = `<button type="button" class="beso-action-btn">
+  <div class="state state--default">
+    <div class="icon-wrapper plane-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="m22 2-7 20-4-9-9-4Z"/>
+        <path d="M22 2 11 13"/>
+      </svg>
+    </div>
+    <span class="label">
+      ${lettersSpans}
+    </span>
+  </div>
+  <div class="state state--sent">
+    <div class="icon-wrapper check-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M20 6 9 17l-5-5"/>
+      </svg>
+    </div>
+    <span class="label-sent">تم الإرسال بنجاح ✓</span>
+  </div>
+</button>`;
+
+    return { html, css };
+  }
+
+  // 0. PREMIUM 3: CONIC GLOW BUTTON (Spinning Gradient Edge)
+  if (elementId === "conic-glow-btn") {
+    const text = escapeHtml(typography.titleText || "زر الهالة المضيئة ✦");
+    const buttonWidthCSS = dimensions.width === 360 ? "auto" : `${dimensions.width}px`;
+    const buttonHeightCSS = dimensions.height === "auto" ? "54px" : `${dimensions.height}px`;
+    const borderWidth = Math.max(2, dimensions.borderWidth || 2);
+    const innerRadius = Math.max(0, dimensions.borderRadius - borderWidth);
+
+    const css = `.conic-gradient-btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: ${buttonWidthCSS};
+  height: ${buttonHeightCSS};
+  min-height: 48px;
+  padding: ${Math.round(dimensions.padding * 0.58)}px ${Math.round(dimensions.padding * 1.4)}px;
+  border-radius: ${dimensions.borderRadius}px;
+  overflow: hidden;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  outline: none;
+  user-select: none;
+  box-sizing: border-box;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), 0 0 20px ${hexToRgba(lighting.glowColor, 0.45)};
+  transition: transform ${animations.transitionSpeed}s cubic-bezier(0.16, 1, 0.3, 1), box-shadow ${animations.transitionSpeed}s ease;
+  animation: besoEntrance-${animations.entranceAnimation} 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.conic-gradient-btn::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: conic-gradient(
+    from 0deg,
+    ${hexToRgba(lighting.colorStop1, dimensions.surfaceOpacity)},
+    ${hexToRgba(lighting.glowColor, 0.95)},
+    ${hexToRgba(lighting.colorStop3, dimensions.surfaceOpacity)},
+    ${hexToRgba(lighting.colorStop2, 0.8)},
+    ${hexToRgba(lighting.glowColor, 0.95)},
+    ${hexToRgba(lighting.colorStop1, dimensions.surfaceOpacity)}
+  );
+  animation: rotateConic 2s linear infinite;
+  z-index: 1;
+}
+
+.conic-gradient-btn::after {
+  content: '';
+  position: absolute;
+  inset: ${borderWidth}px;
+  background: ${hexToRgba("#07140e", Math.max(0.7, dimensions.surfaceOpacity))};
+  border-radius: ${innerRadius}px;
+  z-index: 2;
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  box-shadow: inset 0 1px ${lighting.bevelDepth}px rgba(255, 255, 255, 0.25);
+}
+
+.conic-gradient-btn .gradient-text {
+  position: relative;
+  z-index: 3;
+  font-family: inherit;
+  font-size: ${globalParams.fontSize || typography.titleSize || 16}px;
+  font-weight: 700;
+  background: linear-gradient(135deg, ${typography.titleColor}, ${lighting.glowColor}, #ffffff);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 0 8px ${hexToRgba(lighting.glowColor, 0.65)});
+  animation: textHue 4s linear infinite;
+  transition: filter 0.3s ease;
+}
+
+.conic-gradient-btn:hover {
+  transform: translateY(-3px) scale(1.03);
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.6), 0 0 32px ${hexToRgba(lighting.glowColor, 0.8)};
+}
+
+.conic-gradient-btn:active {
+  transform: translateY(1px) scale(0.98);
+}
+
+@keyframes rotateConic {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@keyframes textHue {
+  0% { filter: hue-rotate(0deg) drop-shadow(0 0 8px ${hexToRgba(lighting.glowColor, 0.65)}); }
+  50% { filter: hue-rotate(45deg) drop-shadow(0 0 16px ${hexToRgba(lighting.glowColor, 0.95)}); }
+  100% { filter: hue-rotate(0deg) drop-shadow(0 0 8px ${hexToRgba(lighting.glowColor, 0.65)}); }
+}
+${entranceKeyframes}`.trim();
+
+    const html = `<button type="button" class="conic-gradient-btn">
+  <span class="gradient-text">${text}</span>
+</button>`;
+
+    return { html, css };
+  }
+
+  // 0. PREMIUM 4: FRUTIGER AERO GLASS BUTTON
+  if (elementId === "frutiger-aero-btn") {
+    const text = escapeHtml(typography.titleText || "زر الزجاج البلوري Aero");
+    const buttonWidthCSS = dimensions.width === 360 ? "auto" : `${dimensions.width}px`;
+    const buttonHeightCSS = dimensions.height === "auto" ? "54px" : `${dimensions.height}px`;
+
+    const css = `.beso-frutiger-btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: ${buttonWidthCSS};
+  height: ${buttonHeightCSS};
+  min-height: 48px;
+  background: linear-gradient(180deg, #006caa, #00c3ff);
+  border-radius: ${dimensions.borderRadius}px;
+  padding: 3px;
+  border: 1px solid rgba(255, 255, 255, 0.65);
+  cursor: pointer;
+  outline: none;
+  user-select: none;
+  box-sizing: border-box;
+  overflow: hidden;
+  box-shadow: 0 12px 28px rgba(0, 110, 180, 0.45), inset 0 1px 2px rgba(255, 255, 255, 0.95);
+  transition: all ${animations.transitionSpeed}s cubic-bezier(0.16, 1, 0.3, 1);
+  animation: besoEntrance-${animations.entranceAnimation} 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.beso-frutiger-btn .inner-glass {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: ${Math.round(dimensions.padding * 0.55)}px ${Math.round(dimensions.padding * 1.35)}px;
+  border-radius: ${Math.max(0, dimensions.borderRadius - 3)}px;
+  background: radial-gradient(circle at 50% 100%, #30f8f8 10%, #30f8f800 55%), linear-gradient(180deg, #013654 0%, #001a2b 100%);
+  overflow: hidden;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.beso-frutiger-btn .inner-glass::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -150%;
+  width: 200%;
+  height: 100%;
+  background: linear-gradient(-65deg, #0000 40%, #fff7 50%, #0000 70%);
+  animation: aeroShimmer 3s ease-in-out infinite;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.beso-frutiger-btn .top-specular-light {
+  position: absolute;
+  top: 0;
+  left: 6%;
+  right: 6%;
+  height: 48%;
+  border-radius: 99px 99px 50% 50% / 99px 99px 30% 30%;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.75) 0%, rgba(255, 255, 255, 0.1) 80%, rgba(255, 255, 255, 0) 100%);
+  pointer-events: none;
+  z-index: 3;
+}
+
+.beso-frutiger-btn .text-glow {
+  position: relative;
+  z-index: 4;
+  font-family: inherit;
+  font-size: ${globalParams.fontSize || 16}px;
+  font-weight: 700;
+  color: ${typography.titleColor || "#ffffff"};
+  text-shadow: 0 0 10px rgba(48, 248, 248, 0.85), 0 2px 4px rgba(0, 0, 0, 0.8);
+  letter-spacing: 0.5px;
+}
+
+.beso-frutiger-btn:hover {
+  transform: translateY(-3px) scale(1.02);
+  box-shadow: 0 16px 36px rgba(0, 195, 255, 0.65), inset 0 1px 3px #ffffff;
+  filter: brightness(1.12);
+}
+
+.beso-frutiger-btn:active {
+  transform: translateY(1px) scale(0.98);
+}
+
+@keyframes aeroShimmer {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(200%); }
+}
+${entranceKeyframes}`.trim();
+
+    const html = `<button class="beso-frutiger-btn">
+  <div class="inner-glass">
+    <div class="top-specular-light"></div>
+    <span class="text-glow">${text}</span>
+  </div>
+</button>`;
+
+    return { html, css };
+  }
+
+  // 0. PREMIUM 5: SPACE GALAXY ORBIT BUTTON
+  if (elementId === "space-orbit-btn") {
+    const text = escapeHtml(typography.titleText || "رحلة الفضاء ✦");
+    const buttonWidthCSS = dimensions.width === 360 ? "auto" : `${dimensions.width}px`;
+    const buttonHeightCSS = dimensions.height === "auto" ? "54px" : `${dimensions.height}px`;
+
+    const css = `.beso-space-btn {
+  position: relative;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  width: ${buttonWidthCSS};
+  height: ${buttonHeightCSS};
+  min-height: 48px;
+  padding: ${Math.round(dimensions.padding * 0.6)}px ${Math.round(dimensions.padding * 1.5)}px;
+  background-image: linear-gradient(#121212, #121212), linear-gradient(137deg, #ffdb3b, #fe53bb, #8f51ea, #0044ff);
+  background-origin: border-box;
+  background-clip: padding-box, border-box;
+  border: 2px solid transparent;
+  border-radius: ${dimensions.borderRadius}px;
+  cursor: pointer;
+  outline: none;
+  overflow: hidden;
+  user-select: none;
+  box-sizing: border-box;
+  background-size: 100% 100%, 300% 300%;
+  animation: spaceGradientShift 5s ease infinite, besoEntrance-${animations.entranceAnimation} 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  transition: all ${animations.transitionSpeed}s ease;
+}
+
+.beso-space-btn .space-title {
+  position: relative;
+  z-index: 5;
+  font-family: inherit;
+  font-size: ${globalParams.fontSize || 16}px;
+  font-weight: 700;
+  color: ${typography.titleColor || "#ffffff"};
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  text-shadow: 0 0 12px rgba(255, 255, 255, 0.8), 0 0 20px rgba(254, 83, 187, 0.8);
+}
+
+.beso-space-btn #container-stars {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  overflow: hidden;
+  border-radius: inherit;
+  pointer-events: none;
+}
+
+.beso-space-btn #stars-particle-layer {
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(#ffffff 1px, transparent 1%), radial-gradient(#ffe066 1px, transparent 1%), radial-gradient(#70e6bb 1.5px, transparent 1%);
+  background-size: 30px 30px, 45px 45px, 60px 60px;
+  background-position: 0 0, 15px 15px, 30px 30px;
+  animation: starRotation 90s linear infinite;
+  opacity: 0.85;
+}
+
+.beso-space-btn #glow-aura {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  filter: blur(20px);
+  opacity: 0.75;
+}
+
+.beso-space-btn .glow-circle-1 {
+  position: absolute;
+  top: -20%;
+  left: -20%;
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: #fe53bb;
+  animation: neonPulse 4s ease-in-out infinite alternate;
+}
+
+.beso-space-btn .glow-circle-2 {
+  position: absolute;
+  bottom: -20%;
+  right: -20%;
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  background: #0044ff;
+  animation: neonPulse 4s ease-in-out 2s infinite alternate;
+}
+
+.beso-space-btn:hover {
+  transform: scale(1.04);
+  box-shadow: 0 0 35px rgba(254, 83, 187, 0.45), 0 0 50px rgba(0, 68, 255, 0.45);
+}
+
+.beso-space-btn:active {
+  transform: scale(0.98);
+}
+
+@keyframes spaceGradientShift {
+  0% { background-position: 0 0, 0% 50%; }
+  50% { background-position: 0 0, 100% 50%; }
+  100% { background-position: 0 0, 0% 50%; }
+}
+
+@keyframes starRotation {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@keyframes neonPulse {
+  0% { transform: scale(0.85); opacity: 0.5; }
+  100% { transform: scale(1.3); opacity: 0.95; }
+}
+${entranceKeyframes}`.trim();
+
+    const html = `<button type="button" class="beso-space-btn">
+  <strong class="space-title">${text}</strong>
+  <div id="container-stars">
+    <div id="stars-particle-layer"></div>
+  </div>
+  <div id="glow-aura">
+    <div class="glow-circle-1"></div>
+    <div class="glow-circle-2"></div>
+  </div>
+</button>`;
+
+    return { html, css };
+  }
+
+  // 0. PREMIUM 6: ADAPTIVE MORPHING SHELL
+  if (elementId === "adaptive-morph-btn") {
+    const text = escapeHtml(typography.titleText || "استكشاف المزيد");
+
+    const css = `.beso-morph-btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-start;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: none;
+  background: linear-gradient(135deg, ${lighting.colorStop1}, ${lighting.colorStop2});
+  color: #ffffff;
+  padding: 0 15px;
+  cursor: pointer;
+  outline: none;
+  overflow: hidden;
+  user-select: none;
+  box-sizing: border-box;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4), 0 0 15px ${hexToRgba(lighting.glowColor, 0.35)};
+  transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  animation: besoEntrance-${animations.entranceAnimation} 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.beso-morph-btn .sign-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  color: ${lighting.glowColor};
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), color 0.3s ease;
+}
+
+.beso-morph-btn .morph-text {
+  opacity: 0;
+  width: 0;
+  max-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  margin-right: 0;
+  font-family: inherit;
+  font-size: ${globalParams.fontSize || 14}px;
+  font-weight: 700;
+  color: ${typography.titleColor || "#ffffff"};
+  transform: translateX(12px);
+  transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.beso-morph-btn:hover {
+  width: 150px;
+  border-radius: 30px;
+  padding: 0 18px;
+  gap: 8px;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5), 0 0 25px ${hexToRgba(lighting.glowColor, 0.6)};
+}
+
+.beso-morph-btn:hover .morph-text {
+  opacity: 1;
+  width: auto;
+  max-width: 100px;
+  margin-right: 6px;
+  transform: translateX(0);
+}
+
+.beso-morph-btn:hover .sign-icon {
+  transform: rotate(-15deg) scale(1.1);
+  color: #ffffff;
+}
+
+.beso-morph-btn:active {
+  transform: translateY(1px) scale(0.96);
+}
+${entranceKeyframes}`.trim();
+
+    const html = `<button class="beso-morph-btn">
+  <div class="sign-icon">
+    <svg viewBox="0 0 512 512" width="18" height="18"><path fill="currentColor" d="M377.9 105.9L500.7 228.7c7.2 7.2 11.3 17.1 11.3 27.3s-4.1 20.1-11.3 27.3L377.9 406.1c-6.4 6.4-15 9.9-24 9.9c-18.7 0-33.9-15.2-33.9-33.9l0-62.1-128 0c-17.7 0-32-14.3-32-32l0-64c0-17.7 14.3-32 32-32l128 0 0-62.1c0-18.7 15.2-33.9 33.9-33.9c9 0 17.6 3.6 24 9.9zM160 96L96 96c-17.7 0-32 14.3-32 32l0 256c0 17.7 14.3 32 32 32l64 0c17.7 0 32 14.3 32 32s-14.3 32-32 32l-64 0c-53 0-96-43-96-96L0 128C0 75 43 32 96 32l64 0c17.7 0 32 14.3 32 32s-14.3 32-32 32z"></path></svg>
+  </div>
+  <div class="morph-text">${text}</div>
+</button>`;
+
+    return { html, css };
+  }
+
   // 1. CARD ELEMENT
   if (elementId === "card") {
     const title = escapeHtml(typography.titleText);
