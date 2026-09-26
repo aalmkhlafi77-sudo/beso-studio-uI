@@ -6,6 +6,8 @@ import ElementSelector from "@/components/ElementSelector";
 import ParamsEditor from "@/components/ParamsEditor";
 import LivePreview from "@/components/LivePreview";
 import CodePreview from "@/components/CodePreview";
+import SoundToggle from "@/components/SoundToggle";
+import { playSoftClick } from "@/lib/soundEngine";
 
 export default function App() {
   const [state, setState] = useState(createInitialWorkspaceState);
@@ -161,20 +163,27 @@ export default function App() {
           </div>
         </div>
 
-        <button
-          type="button"
-          onClick={resetToDefault}
-          className="group shrink-0 self-start rounded-xl border border-[#d4af37]/35 bg-[linear-gradient(145deg,rgba(50,65,49,.9),rgba(10,24,18,.96))] px-4 py-2.5 text-xs font-semibold text-[#f3ead6] shadow-[inset_0_1px_0_rgba(255,255,255,.13),0_8px_24px_rgba(0,0,0,.28)] transition hover:border-[#f0d779]/80 hover:shadow-[inset_0_1px_0_rgba(255,255,255,.18),0_0_24px_rgba(212,175,55,.13)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#d4af37] sm:self-center cursor-pointer"
-        >
-          <span className="ml-2 text-[#d4af37] transition group-hover:rotate-[-35deg]">⟲</span>
-          إعادة ضبط المختبر
-        </button>
+        <div className="flex flex-wrap items-center gap-3 self-start sm:self-center">
+          <SoundToggle />
+          <button
+            type="button"
+            onClick={() => {
+              playSoftClick();
+              resetToDefault();
+            }}
+            className="group shrink-0 rounded-xl border border-[#d4af37]/35 bg-[linear-gradient(145deg,rgba(50,65,49,.9),rgba(10,24,18,.96))] px-4 py-2.5 text-xs font-semibold text-[#f3ead6] shadow-[inset_0_1px_0_rgba(255,255,255,.13),0_8px_24px_rgba(0,0,0,.28)] transition hover:border-[#f0d779]/80 hover:shadow-[inset_0_1px_0_rgba(255,255,255,.18),0_0_24px_rgba(212,175,55,.13)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#d4af37] cursor-pointer"
+          >
+            <span className="ml-2 text-[#d4af37] transition group-hover:rotate-[-35deg]">⟲</span>
+            إعادة ضبط المختبر
+          </button>
+        </div>
       </header>
 
-      {/* 3-Column Layout: Controls (Right), Live Preview (Center Sticky), Generated Code (Left) */}
-      <main className="relative mx-auto grid max-w-[1800px] grid-cols-1 items-start gap-4 lg:grid-cols-12 xl:gap-5">
-        {/* Right Column: Library & Physical Parameters Editor with 5 Tabbed Sliders */}
-        <section className="space-y-4 lg:col-span-4 xl:col-span-4" aria-label="اختيار العنصر وإعدادات الخامات">
+      {/* Main Studio Grid Layout: Sticky Split Preview & Code Panel (V3.7) */}
+      <main className="relative mx-auto grid max-w-[1800px] grid-cols-1 items-start gap-6 lg:grid-cols-12 xl:gap-8">
+        
+        {/* RIGHT COLUMN: Scrollable Controls Panel (5 Columns on Desktop) */}
+        <section className="space-y-4 lg:col-span-5" aria-label="اختيار العنصر وإعدادات الخامات">
           <ElementSelector
             elements={ELEMENTS_CONFIG}
             activeElementId={state.activeElement}
@@ -202,15 +211,31 @@ export default function App() {
           />
         </section>
 
-        {/* Center Column: Live Preview (Sticky on desktop) */}
-        <section className="min-h-[440px] lg:sticky lg:top-6 lg:col-span-4 xl:col-span-4 self-start z-10" aria-label="مسرح المعاينة المباشرة">
-          <LivePreview generatedCode={generatedCode} elementLabel={selectedElement?.label} />
+        {/* LEFT COLUMN: STICKY Preview Canvas & Code Viewport (7 Columns on Desktop) */}
+        <section className="lg:col-span-7 space-y-6 lg:sticky lg:top-4 lg:max-h-[calc(100vh-2rem)] lg:overflow-y-auto pr-1 custom-scrollbar z-10" aria-label="مسرح المعاينة المباشرة وشفرة الكود">
+          
+          {/* Live Render Preview Canvas Stage */}
+          <div className="bg-slate-900/90 border border-emerald-500/30 rounded-2xl p-4 shadow-[0_10px_30px_rgba(0,0,0,0.5)] backdrop-blur-md">
+            <h3 className="text-xs font-semibold text-emerald-400 mb-2 flex items-center justify-between">
+              <span>👁️ مسرح المعاينة المباشرة (Live Preview)</span>
+              <span className="text-[10px] text-slate-400">مثبت تلقائياً</span>
+            </h3>
+            <LivePreview
+              generatedCode={generatedCode}
+              elementLabel={selectedElement?.label}
+              soundPreset={state.animations?.soundPreset || state.soundPreset || "soft-click"}
+            />
+          </div>
+
+          {/* Live Generated Code Snippet Output Container */}
+          <div className="bg-slate-950 border border-slate-800 rounded-2xl p-4 shadow-2xl">
+            <div className="max-h-[380px] overflow-y-auto text-xs font-mono rounded bg-slate-900/80 p-3 text-emerald-300 border border-slate-800 dir-ltr custom-scrollbar">
+              <CodePreview generatedCode={generatedCode} />
+            </div>
+          </div>
+
         </section>
 
-        {/* Left Column: Standalone Generated Code */}
-        <section className="min-h-[440px] lg:col-span-4 xl:col-span-4" aria-label="الكود المصدّر">
-          <CodePreview generatedCode={generatedCode} />
-        </section>
       </main>
 
       <footer className="relative mx-auto mt-6 max-w-[1800px] border-t border-[#d4af37]/10 pt-4 text-center text-[10px] text-[#75867b]">

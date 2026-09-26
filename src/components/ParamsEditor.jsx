@@ -1,6 +1,7 @@
 // components/ParamsEditor.jsx
 import React, { useState } from "react";
 import { MATERIAL_SURFACES } from "@/data/effects";
+import { STANDARD_SOUND_PRESETS, LUXURY_SOUND_PRESETS, playPresetSound } from "@/lib/soundEngine";
 
 const TABS = [
   { id: "dimensions", label: "الأبعاد والشفافية", icon: "📐", sub: "Dimensions & Opacity" },
@@ -69,6 +70,8 @@ export default function ParamsEditor({
     transitionSpeed: animations.transitionSpeed ?? 0.35,
     entranceAnimation: animations.entranceAnimation || "fadeUp",
     hoverEffect: animations.hoverEffect || "liftScale",
+    soundPreset: animations.soundPreset || "soft-click",
+    particleOverlay: animations.particleOverlay || "none",
   };
 
   const currentSurface = globalParams.surfaceStyle || "glass";
@@ -491,7 +494,7 @@ export default function ParamsEditor({
             {/* Text Content Inputs */}
             <div className="rounded-xl border border-white/10 bg-black/15 p-3 space-y-2.5">
               <div>
-                <label className="mb-1 block text-[11px] text-slate-300">نص العنوان / الزر</label>
+                <label className="mb-1 block text-[11px] font-semibold text-slate-300">نص العنوان الرئيسي (Title Text)</label>
                 <input
                   type="text"
                   value={typo.titleText}
@@ -501,22 +504,22 @@ export default function ParamsEditor({
                     onElementParamChange?.(activeElement, "text", e.target.value);
                   }}
                   className="w-full rounded-lg border border-white/10 bg-[#07120d] px-3 py-1.5 text-xs text-[#eae5d9] focus:border-[#d4af37] focus:outline-none"
+                  placeholder="ادخل نص العنوان..."
                 />
               </div>
-              {activeElement === "card" && (
-                <div>
-                  <label className="mb-1 block text-[11px] text-slate-300">نص الوصف</label>
-                  <textarea
-                    rows={2}
-                    value={typo.descText}
-                    onChange={(e) => {
-                      onTypographyChange?.("descText", e.target.value);
-                      onElementParamChange?.("card", "description", e.target.value);
-                    }}
-                    className="w-full rounded-lg border border-white/10 bg-[#07120d] px-3 py-1.5 text-xs text-[#eae5d9] focus:border-[#d4af37] focus:outline-none resize-none"
-                  />
-                </div>
-              )}
+              <div>
+                <label className="mb-1 block text-[11px] font-semibold text-slate-300">نص الوصف / الشارة (Description / Badge Text)</label>
+                <input
+                  type="text"
+                  value={typo.descText}
+                  onChange={(e) => {
+                    onTypographyChange?.("descText", e.target.value);
+                    onElementParamChange?.(activeElement, "description", e.target.value);
+                  }}
+                  className="w-full rounded-lg border border-white/10 bg-[#07120d] px-3 py-1.5 text-xs text-[#eae5d9] focus:border-[#d4af37] focus:outline-none"
+                  placeholder="ادخل نص الوصف أو اسم المصمم..."
+                />
+              </div>
             </div>
           </div>
         </section>
@@ -580,6 +583,70 @@ export default function ParamsEditor({
               display={`${(anim.transitionSpeed).toFixed(2)}s`}
               onChange={(val) => onAnimationsChange?.("transitionSpeed", val / 100)}
             />
+
+            {/* Sound Preset Library Selector */}
+            <div className="space-y-2 border-t border-[#d4af37]/20 pt-3">
+              <div className="flex items-center justify-between">
+                <label htmlFor="beso-sound-preset" className="block text-xs font-semibold text-emerald-400">
+                  🔊 الصوت التفاعلي للقطعة (UI Sound FX)
+                </label>
+                <span className="text-[10px] text-[#d4af37] font-mono">20 خامة ونغمة فاخرة</span>
+              </div>
+              <div className="flex gap-2">
+                <select
+                  id="beso-sound-preset"
+                  value={anim.soundPreset}
+                  onChange={(e) => onAnimationsChange?.("soundPreset", e.target.value)}
+                  className="flex-1 rounded-xl border border-emerald-500/30 bg-[#081711] px-3 py-2 text-xs text-[#eae5d9] shadow-[inset_0_2px_5px_rgba(0,0,0,.45)] focus:border-emerald-400 focus:outline-none"
+                >
+                  <optgroup label="🔊 المؤثرات الأساسية (Standard UI)" className="bg-[#05110c] text-emerald-300 font-bold">
+                    {STANDARD_SOUND_PRESETS.map((preset) => (
+                      <option key={preset.id} value={preset.id} className="bg-[#081711] text-[#fff8e7] font-normal py-1.5">
+                        {preset.label}
+                      </option>
+                    ))}
+                  </optgroup>
+                  <optgroup label="💎 الألحان النغمية الفاخرة (Luxury Symphony)" className="bg-[#05110c] text-[#ffd700] font-bold">
+                    {LUXURY_SOUND_PRESETS.map((preset) => (
+                      <option key={preset.id} value={preset.id} className="bg-[#081711] text-[#fff8e7] font-normal py-1.5">
+                        {preset.label}
+                      </option>
+                    ))}
+                  </optgroup>
+                </select>
+
+                <button
+                  type="button"
+                  onClick={() => playPresetSound(anim.soundPreset, true)}
+                  title="تجربة الصوت التفاعلي"
+                  className="px-3.5 py-2 rounded-xl bg-emerald-600/20 text-emerald-300 border border-emerald-500/40 text-xs font-bold hover:bg-emerald-600/40 hover:text-white transition cursor-pointer flex items-center gap-1 shrink-0"
+                >
+                  <span>▶️</span>
+                  <span>تجربة</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Hero Particle Overlay Selector */}
+            <div className="space-y-2 border-t border-[#d4af37]/20 pt-3">
+              <div className="flex items-center justify-between">
+                <label htmlFor="beso-particle-overlay" className="block text-xs font-semibold text-cyan-400">
+                  ✨ طبقة جسيمات الهيرو (Hero Particle Overlay)
+                </label>
+                <span className="text-[10px] text-cyan-300 font-mono">3 تأثيرات إضافية</span>
+              </div>
+              <select
+                id="beso-particle-overlay"
+                value={anim.particleOverlay}
+                onChange={(e) => onAnimationsChange?.("particleOverlay", e.target.value)}
+                className="w-full rounded-xl border border-cyan-500/30 bg-[#081711] px-3 py-2 text-xs text-[#eae5d9] shadow-[inset_0_2px_5px_rgba(0,0,0,.45)] focus:border-cyan-400 focus:outline-none"
+              >
+                <option value="none" className="bg-[#081711] text-[#fff8e7] py-1.5">🚫 بدون طبقة جسيمات (None)</option>
+                <option value="particles-cosmic-dust" className="bg-[#081711] text-[#fff8e7] py-1.5">✨ غبار كوني وميض بوكيه (Cosmic Dust)</option>
+                <option value="particles-cyber-mesh" className="bg-[#081711] text-[#fff8e7] py-1.5">🌐 شبكة سايبر متصلة (Cyber Mesh Nodes)</option>
+                <option value="particles-energy-ember" className="bg-[#081711] text-[#fff8e7] py-1.5">🔥 شرارات وطاقة متطايرة (Energy Embers)</option>
+              </select>
+            </div>
           </div>
         </section>
       )}

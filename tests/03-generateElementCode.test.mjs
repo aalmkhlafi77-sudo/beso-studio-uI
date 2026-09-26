@@ -65,3 +65,13 @@ test('each core module has isolated, valid output with no inactive module select
   }
   assert.doesNotMatch(generateElementCode('card', state).css, /\.beso-social-dock/);
 });
+
+test('quantum portal hero canvas generates valid HTML and CSS with particles', () => {
+  const state = createInitialWorkspaceState();
+  state.animations.particleOverlay = 'particles-cyber-mesh';
+  const code = generateElementCode('hero-quantum-portal', state);
+  assert.match(code.html, /beso-hero-portal-wrapper/);
+  assert.match(code.html, /portal-core-singularity/);
+  assert.match(code.html, /beso-particle-layer/);
+  assert.match(code.css, /\.beso-hero-portal-wrapper/);
+});

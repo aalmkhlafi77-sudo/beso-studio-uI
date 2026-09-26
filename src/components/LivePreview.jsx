@@ -1,5 +1,6 @@
 // components/LivePreview.jsx
 import { useState } from "react";
+import { playSoftClick, playHoverTone, playPresetSound } from "../lib/soundEngine";
 
 const backgroundOptions = [
   { id: "dark", label: "داكنة", className: "bg-[#03100b]" },
@@ -7,7 +8,7 @@ const backgroundOptions = [
   { id: "grid", label: "شبكة", className: "bg-[#04130f] bg-[radial-gradient(rgba(212,175,55,.22)_1px,transparent_1px)] [background-size:18px_18px]" },
 ];
 
-export default function LivePreview({ generatedCode, elementLabel }) {
+export default function LivePreview({ generatedCode, elementLabel, soundPreset = "soft-click" }) {
   const [bgMode, setBgMode] = useState("dark");
   const background = backgroundOptions.find((option) => option.id === bgMode)?.className;
 
@@ -28,8 +29,12 @@ export default function LivePreview({ generatedCode, elementLabel }) {
               key={option.id}
               type="button"
               aria-pressed={bgMode === option.id}
-              onClick={() => setBgMode(option.id)}
-              className={`rounded-lg px-2.5 py-1.5 transition ${bgMode === option.id ? "border border-[#f0d779]/70 bg-[linear-gradient(145deg,#e2c15d,#9d7624)] font-semibold text-[#20180b] shadow-[0_2px_9px_rgba(212,175,55,.22),inset_0_1px_0_rgba(255,255,255,.5)]" : "border border-transparent text-[#9ba99f] hover:text-[#fff8e7]"}`}
+              onClick={() => {
+                playSoftClick();
+                setBgMode(option.id);
+              }}
+              onMouseEnter={playHoverTone}
+              className={`rounded-lg px-2.5 py-1.5 transition cursor-pointer ${bgMode === option.id ? "border border-[#f0d779]/70 bg-[linear-gradient(145deg,#e2c15d,#9d7624)] font-semibold text-[#20180b] shadow-[0_2px_9px_rgba(212,175,55,.22),inset_0_1px_0_rgba(255,255,255,.5)]" : "border border-transparent text-[#9ba99f] hover:text-[#fff8e7]"}`}
             >
               {option.label}
             </button>
@@ -44,7 +49,12 @@ export default function LivePreview({ generatedCode, elementLabel }) {
         <span aria-hidden="true" className="pointer-events-none absolute bottom-[24%] right-[17%] h-1 w-1 rounded-full bg-[#bc7be0] shadow-[0_0_12px_4px_rgba(188,123,224,.45)]" />
         <div aria-hidden="true" className="pointer-events-none absolute bottom-[15%] h-8 w-[72%] rounded-[50%] bg-[#d4af37]/[.08] blur-xl" />
         <style>{generatedCode.css}</style>
-        <div className="relative z-10 [filter:drop-shadow(0_22px_20px_rgba(0,0,0,.48))]" dangerouslySetInnerHTML={{ __html: generatedCode.html }} />
+        <div
+          className="relative z-10 [filter:drop-shadow(0_22px_20px_rgba(0,0,0,.48))]"
+          onPointerDown={() => playPresetSound(soundPreset)}
+          onMouseEnter={playHoverTone}
+          dangerouslySetInnerHTML={{ __html: generatedCode.html }}
+        />
         <span className="absolute bottom-3 left-3 rounded-full border border-white/[.08] bg-black/30 px-2.5 py-1 text-[8px] tracking-[.2em] text-[#83938a]">LIVE MATERIAL RENDER</span>
       </div>
     </section>

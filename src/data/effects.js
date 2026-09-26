@@ -174,15 +174,18 @@ export const initialAnimations = {
   transitionSpeed: 0.35,
   entranceAnimation: "fadeUp", // "fadeUp" | "zoomIn" | "slideDown" | "pulseGlow"
   hoverEffect: "liftScale", // "liftScale" | "glowExpand" | "tilt3d" | "neonPulse"
+  soundPreset: "soft-click", // "soft-click" | "send-swoosh" | "open-pop" | "close-snap" | "cyber-neon" | "success-chime" | "space-warp" | "toggle-switch" | "hover-tick" | "heart-beat"
+  particleOverlay: "none", // "none" | "particles-cosmic-dust" | "particles-cyber-mesh" | "particles-energy-ember"
 };
 
 export const initialEffectState = {
-  activeElement: "cyber-card", // Premium options: cyber-card, action-send-btn, conic-glow-btn, frutiger-aero-btn, space-orbit-btn, adaptive-morph-btn alongside button, card, input, badge, social
+  activeElement: "cyber-card", // Premium & Hero options: cyber-card, action-send-btn, conic-glow-btn, frutiger-aero-btn, space-orbit-btn, adaptive-morph-btn, like-heart-btn, multi-layer-diff-btn, figma-vector-frame, ripple-wave-btn, cyber-glimmer-card, holographic-3d-ring, cyber-matrix-badge, glass-morph-card-3d, glowing-border-button, biometric-auth-card, quantum-toggle-switch, holographic-price-card, cyber-truck-card, anime-treadmill-card, ticker-tape-card, slot-machine-card, retro-crt-glitch, audio-equalizer-card, kinetic-cart-slide, quick-quantity-counter, liquid-tote-fill, wa-pulse-glow, wa-continuous-spin, wa-expandable-badge, hero-cyber-grid, hero-aurora-wave, hero-cosmic-particles alongside button, card, input, badge, social
 
   dimensions: { ...initialDimensions },
   lighting: { ...initialLighting },
   typography: { ...initialTypography },
   animations: { ...initialAnimations },
+  soundPreset: "soft-click",
 
   globalParams: {
     surfaceStyle: "glass",

@@ -1,14 +1,18 @@
 // components/ElementSelector.jsx
 import { useState } from "react";
+import { playSoftClick, playHoverTone } from "../lib/soundEngine";
 
 export default function ElementSelector({ elements, activeElementId, onSelectElement }) {
   const [selectedCategory, setSelectedCategory] = useState("all");
 
+  const heroElements = elements.filter((el) => el.category === "hero");
   const premiumElements = elements.filter((el) => el.category === "premium");
-  const standardElements = elements.filter((el) => el.category !== "premium");
+  const standardElements = elements.filter((el) => el.category === "standard");
 
   const displayedElements =
-    selectedCategory === "premium"
+    selectedCategory === "hero"
+      ? heroElements
+      : selectedCategory === "premium"
       ? premiumElements
       : selectedCategory === "standard"
       ? standardElements
@@ -30,10 +34,14 @@ export default function ElementSelector({ elements, activeElementId, onSelectEle
       </div>
 
       {/* Category Toggle Tabs */}
-      <div className="mb-3 grid grid-cols-3 gap-1 rounded-xl border border-white/10 bg-black/30 p-1">
+      <div className="mb-3 grid grid-cols-2 gap-1 rounded-xl border border-white/10 bg-black/30 p-1 sm:grid-cols-4">
         <button
           type="button"
-          onClick={() => setSelectedCategory("all")}
+          onClick={() => {
+            playSoftClick();
+            setSelectedCategory("all");
+          }}
+          onMouseEnter={playHoverTone}
           className={`rounded-lg py-1.5 text-center text-xs font-semibold transition cursor-pointer ${
             selectedCategory === "all"
               ? "bg-[#d4af37]/25 text-[#fff8e7] border border-[#d4af37]/50 shadow-sm"
@@ -44,7 +52,27 @@ export default function ElementSelector({ elements, activeElementId, onSelectEle
         </button>
         <button
           type="button"
-          onClick={() => setSelectedCategory("premium")}
+          onClick={() => {
+            playSoftClick();
+            setSelectedCategory("hero");
+          }}
+          onMouseEnter={playHoverTone}
+          className={`rounded-lg py-1.5 text-center text-xs font-semibold transition cursor-pointer flex items-center justify-center gap-1 ${
+            selectedCategory === "hero"
+              ? "bg-[linear-gradient(135deg,rgba(16,185,129,.4),rgba(6,78,59,.8))] text-[#fff8e7] border border-emerald-400 shadow-[0_0_12px_rgba(16,185,129,.4)]"
+              : "text-emerald-400 hover:text-white"
+          }`}
+        >
+          <span>🌌</span>
+          <span>الهيرو (Hero)</span>
+        </button>
+        <button
+          type="button"
+          onClick={() => {
+            playSoftClick();
+            setSelectedCategory("premium");
+          }}
+          onMouseEnter={playHoverTone}
           className={`rounded-lg py-1.5 text-center text-xs font-semibold transition cursor-pointer flex items-center justify-center gap-1 ${
             selectedCategory === "premium"
               ? "bg-[linear-gradient(135deg,rgba(212,175,55,.4),rgba(74,21,75,.6))] text-[#fff8e7] border border-[#f0d779] shadow-[0_0_12px_rgba(212,175,55,.3)]"
@@ -56,7 +84,11 @@ export default function ElementSelector({ elements, activeElementId, onSelectEle
         </button>
         <button
           type="button"
-          onClick={() => setSelectedCategory("standard")}
+          onClick={() => {
+            playSoftClick();
+            setSelectedCategory("standard");
+          }}
+          onMouseEnter={playHoverTone}
           className={`rounded-lg py-1.5 text-center text-xs font-semibold transition cursor-pointer ${
             selectedCategory === "standard"
               ? "bg-white/15 text-[#fff8e7] border border-white/20 shadow-sm"
@@ -81,7 +113,13 @@ export default function ElementSelector({ elements, activeElementId, onSelectEle
               aria-pressed={isAvailable ? isActive : undefined}
               aria-label={`${element.label}${isAvailable ? "" : " — قريبًا"}`}
               disabled={!isAvailable}
-              onClick={() => onSelectElement(element.id)}
+              onClick={() => {
+                playSoftClick();
+                onSelectElement(element.id);
+              }}
+              onMouseEnter={() => {
+                if (isAvailable) playHoverTone();
+              }}
               className={`relative flex min-h-[92px] flex-col items-start justify-between rounded-xl border p-3 text-right transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#d4af37] cursor-pointer ${
                 isActive
                   ? "border-[#e5c35d] bg-[linear-gradient(145deg,rgba(74,21,75,.65),rgba(18,35,27,.98))] text-[#fff8e7] shadow-[0_0_24px_rgba(212,175,55,.22),inset_0_1px_0_rgba(255,255,255,.2)]"
