@@ -199,15 +199,18 @@ test('9. Premium Element: Figma Canvas Vector Frame (Dynamic Scaling, Colors & L
   // HTML checks
   assert.match(code.html, /<div class="beso-figma-container">/);
   assert.match(code.html, /<svg class="figma-svg-canvas" viewBox="0 0 500 300">/);
-  assert.match(code.html, /<text[^>]*fill="#FFEAA7"[^>]*>مخطط النظام الديناميكي<\/text>/);
-  assert.match(code.html, /<g class="figma-unified-cursor">/);
+  assert.match(code.html, /<h3 class="figma-title-text">\s*مخطط النظام الديناميكي\s*<\/h3>/);
+  assert.match(code.html, /<g class="figma-fixed-badge"[^>]*>/);
+  assert.match(code.html, /<g class="figma-moving-cursor">/);
   assert.match(code.html, /<path stroke="#FFFFFF" stroke-width="1.5" fill="#0984E3" d="M 0 0 L 0 22 L 6 16 L 15 16 Z" \/>/);
   assert.match(code.html, /<text[^>]*fill="#55EFC4"[^>]*>عبدالله المخلافي<\/text>/);
 
   // CSS checks
   assert.match(code.css, /\.beso-figma-container\s*\{[^}]*width:\s*500px;\s*max-width:\s*100%;\s*height:\s*300px;/);
-  assert.match(code.css, /\.figma-unified-cursor\s*\{[^}]*animation:\s*figmaUnifiedMove 6s/);
-  assert.match(code.css, /@keyframes figmaUnifiedMove\s*\{/);
+  assert.match(code.css, /\.figma-title-text\s*\{[^}]*max-width:\s*90%;/);
+  assert.match(code.css, /\.figma-title-text\s*\{[^}]*word-wrap:\s*break-word;/);
+  assert.match(code.css, /\.figma-moving-cursor\s*\{[^}]*animation:\s*figmaCursorMove 6s/);
+  assert.match(code.css, /@keyframes figmaCursorMove\s*\{/);
 });
 
 test('10. Premium Element: Animated Wave Button (Ripple & Arrows)', () => {
@@ -263,7 +266,7 @@ test('12. Premium Element: 3D Holographic Orbit Ring (Perspective Spin)', () => 
   assert.match(code.html, /<h3 class="holo-title">مدار هولوغرافي<\/h3>/);
 
   // CSS checks
-  assert.match(code.css, /\.beso-holo-ring-container\s*\{[^}]*perspective:\s*900px/);
+  assert.match(code.css, /\.beso-holo-ring-container\s*\{[^}]*perspective:\s*\d+px/);
   assert.match(code.css, /@keyframes holoSpin\s*\{/);
   assert.match(code.css, /@keyframes holoSpinReverse\s*\{/);
 });

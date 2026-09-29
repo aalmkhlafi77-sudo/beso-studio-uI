@@ -36,7 +36,7 @@ const definitions = {
   },
 };
 
-export default function ElementControls({ elementId, params, onChange }) {
+export default function ElementControls({ elementId, params = {}, onChange }) {
   const definition = definitions[elementId];
   if (!definition) return null;
 
@@ -48,7 +48,7 @@ export default function ElementControls({ elementId, params, onChange }) {
       </div>
       <div className="space-y-4">
         {definition.fields.map((field) => (
-          <ControlField key={field.id} field={field} value={params[field.id]} onChange={(value) => onChange(field.id, value)} />
+          <ControlField key={field.id} field={field} value={params?.[field.id]} onChange={(value) => onChange?.(field.id, value)} />
         ))}
       </div>
     </section>
@@ -57,25 +57,37 @@ export default function ElementControls({ elementId, params, onChange }) {
 
 function ControlField({ field, value, onChange }) {
   if (field.type === "color") {
+    const safeColor = typeof value === "string" && /^#[0-9a-fA-F]{6}$/i.test(value)
+      ? value
+      : (typeof value === "string" && /^#[0-9a-fA-F]{3}$/i.test(value)
+        ? `#${value[1]}${value[1]}${value[2]}${value[2]}${value[3]}${value[3]}`
+        : "#d4af37");
+
     return (
       <label className="flex items-center justify-between gap-3 text-xs text-[#d8ded9]">
         <span>{field.label}</span>
         <span className="flex items-center gap-2 rounded-xl border border-[#d4af37]/15 bg-[linear-gradient(145deg,#17251c,#050c09)] px-2 py-1.5 shadow-[inset_0_1px_3px_rgba(0,0,0,.6)]">
-          <span className="font-mono text-[10px] text-[#aebbb4]">{value}</span>
-          <input aria-label={field.label} type="color" value={value} onChange={(event) => onChange(event.target.value)} className="h-6 w-8 cursor-pointer rounded border-0 bg-transparent p-0" />
+          <span className="font-mono text-[10px] text-[#aebbb4]">{value || safeColor}</span>
+          <input aria-label={field.label} type="color" value={safeColor} onChange={(event) => onChange?.(event.target.value)} className="h-6 w-8 cursor-pointer rounded border-0 bg-transparent p-0" />
         </span>
       </label>
     );
   }
 
   if (field.type === "range") {
+    const parsed = Number(value);
+    const numValue = Number.isFinite(parsed) ? parsed : (field.min ?? 0);
+
     return (
       <label className="block text-xs text-[#d8ded9]">
         <span className="mb-2 flex items-center justify-between gap-2">
           <span>{field.label}</span>
-          <span className="font-mono text-[10px] text-[#d4af37]">{value}{field.unit}</span>
+          <span className="font-mono text-[10px] text-[#d4af37]">{numValue}{field.unit}</span>
         </span>
-        <input aria-label={field.label} type="range" min={field.min} max={field.max} step="1" value={value} onChange={(event) => onChange(Number(event.target.value))} className="w-full cursor-pointer accent-[#d4af37]" />
+        <input aria-label={field.label} type="range" min={field.min} max={field.max} step="1" value={numValue} onChange={(event) => {
+          const v = Number(event.target.value);
+          onChange?.(Number.isFinite(v) ? v : (field.min ?? 0));
+        }} className="w-full cursor-pointer accent-[#d4af37]" />
       </label>
     );
   }
@@ -83,7 +95,7 @@ function ControlField({ field, value, onChange }) {
   return (
     <label className="block text-xs text-[#d8ded9]">
       <span className="mb-1.5 block">{field.label}</span>
-      <input type="text" value={value} onChange={(event) => onChange(event.target.value)} className="w-full rounded-xl border border-white/10 bg-[linear-gradient(145deg,#050c09,#14231b)] px-3 py-2.5 text-xs text-[#eae5d9] shadow-[inset_0_2px_5px_rgba(0,0,0,.45),0_1px_0_rgba(255,255,255,.04)] outline-none transition placeholder:text-slate-500 focus:border-[#d4af37]/70" />
+      <input type="text" value={value ?? ""} onChange={(event) => onChange?.(event.target.value)} className="w-full rounded-xl border border-white/10 bg-[linear-gradient(145deg,#050c09,#14231b)] px-3 py-2.5 text-xs text-[#eae5d9] shadow-[inset_0_2px_5px_rgba(0,0,0,.45),0_1px_0_rgba(255,255,255,.04)] outline-none transition placeholder:text-slate-500 focus:border-[#d4af37]/70" />
     </label>
   );
 }

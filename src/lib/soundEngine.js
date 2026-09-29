@@ -461,3 +461,17 @@ export const playPresetSound = (presetName = "soft-click", enabled = isSoundEnab
 
 export const playSoftClick = () => playPresetSound("soft-click");
 export const playHoverTone = () => playPresetSound("hover-tick");
+
+export const SoundLibrary = {
+  play: (soundName = 'neon_click') => {
+    if (soundName === 'neon_click' || soundName === 'cyber-neon') {
+      playPresetSound('cyber-neon');
+    } else {
+      playPresetSound(soundName);
+    }
+  }
+};
+
+if (typeof window !== 'undefined') {
+  window.SoundLibrary = SoundLibrary;
+}

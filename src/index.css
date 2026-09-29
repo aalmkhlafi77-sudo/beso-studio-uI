@@ -1,26 +1,312 @@
 @import "tailwindcss";
 
+/* Luxury Emerald Marble Theme Background & Gold Accents */
+:root {
+  --color-emerald-deep: #03140e;
+  --color-emerald-marble: #05241b;
+  --color-gold-metallic: #d4af37;
+  --color-gold-light: #f3df8a;
+  --color-gold-dark: #8c6d1f;
+  --color-pearl-cream: #f4eee2;
+}
+
+body {
+  background-color: #020f0a;
+  color: #f4eee2;
+}
+
 /* Force rich dark styling and contrasting gold-cream text on native select options */
 select option {
   background-color: #081711 !important;
   color: #fff8e7 !important;
 }
 
-/* Custom Dark Emerald Scrollbar */
+/* Luxury Emerald Gold Scrollbar */
 .custom-scrollbar::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 7px;
+  height: 7px;
 }
 .custom-scrollbar::-webkit-scrollbar-track {
-  background: rgba(15, 23, 42, 0.6);
+  background: rgba(3, 20, 14, 0.85);
   border-radius: 8px;
 }
 .custom-scrollbar::-webkit-scrollbar-thumb {
-  background: rgba(16, 185, 129, 0.3);
+  background: linear-gradient(180deg, rgba(212, 175, 55, 0.4), rgba(16, 185, 129, 0.4));
   border-radius: 8px;
-  border: 1px solid rgba(16, 185, 129, 0.2);
+  border: 1px solid rgba(212, 175, 55, 0.25);
 }
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: rgba(16, 185, 129, 0.6);
+  background: linear-gradient(180deg, rgba(212, 175, 55, 0.8), rgba(16, 185, 129, 0.8));
 }
+
+/* Emerald Marble Vein Texture Effect */
+.bg-emerald-marble-texture {
+  background-color: #02120b;
+  background-image: 
+    radial-gradient(ellipse at 50% 0%, rgba(13, 75, 55, 0.45) 0%, transparent 60%),
+    radial-gradient(ellipse at 85% 85%, rgba(74, 21, 75, 0.25) 0%, transparent 50%),
+    radial-gradient(ellipse at 15% 90%, rgba(212, 175, 55, 0.12) 0%, transparent 45%),
+    radial-gradient(circle at 75% 25%, rgba(16, 185, 129, 0.15) 0%, transparent 40%),
+    linear-gradient(135deg, rgba(2, 18, 11, 0.95) 0%, rgba(4, 28, 19, 0.98) 50%, rgba(2, 14, 9, 0.95) 100%);
+}
+
+/* Luxury Light Theme: Deep Emerald Marble Background with Warm Pearl & Ivory Panels */
+.bg-ivory-marble-texture {
+  background-color: #041a12;
+  background-image: 
+    radial-gradient(ellipse at 50% 0%, rgba(16, 95, 70, 0.4) 0%, transparent 65%),
+    radial-gradient(ellipse at 85% 80%, rgba(100, 30, 95, 0.22) 0%, transparent 50%),
+    radial-gradient(ellipse at 15% 85%, rgba(212, 175, 55, 0.18) 0%, transparent 45%),
+    linear-gradient(135deg, #03140e 0%, #05261c 50%, #02120b 100%);
+}
+
+/* Luxury Card Pearlescent Theme (Cream / Ivory) */
+.luxury-ivory-panel {
+  background: linear-gradient(165deg, #f7f3ea 0%, #efe8d9 45%, #e5dcce 100%);
+  color: #2a2015;
+  border: 1.5px solid rgba(212, 175, 55, 0.55);
+  box-shadow: 
+    0 24px 60px rgba(0, 0, 0, 0.35),
+    inset 0 1px 2px rgba(255, 255, 255, 0.95),
+    inset 0 -1px 3px rgba(180, 145, 65, 0.25);
+}
+
+/* Light Theme Component Overrides for Panels and Inputs */
+.app-theme-light .studio-panel {
+  background: linear-gradient(165deg, #fbf8f2 0%, #f4ede0 50%, #e9dfcf 100%) !important;
+  color: #2c2114 !important;
+  border-color: rgba(212, 175, 55, 0.55) !important;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.22), inset 0 1px 2px #ffffff !important;
+}
+
+.app-theme-light .studio-header {
+  border-color: rgba(212, 175, 55, 0.35) !important;
+}
+
+.app-theme-light .studio-tab-btn {
+  background: linear-gradient(145deg, #ffffff 0%, #f5efe4 70%, #ebdcc9 100%) !important;
+  color: #5c4a35 !important;
+  border-color: rgba(212, 175, 55, 0.35) !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06), inset 0 1px 1px #ffffff !important;
+}
+
+.app-theme-light .studio-tab-btn-active {
+  background: linear-gradient(145deg, #fdedcb 0%, #edd18c 50%, #d8ae57 100%) !important;
+  color: #261904 !important;
+  border-color: #bfa143 !important;
+  box-shadow: 0 4px 14px rgba(212, 175, 55, 0.4), inset 0 1px 2px #ffffff !important;
+}
+
+.app-theme-light .studio-input-box {
+  background: #ffffff !important;
+  color: #281d11 !important;
+  border-color: rgba(212, 175, 55, 0.45) !important;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.08) !important;
+}
+
+.app-theme-light .studio-chip {
+  background: #ffffff !important;
+  color: #3b2e1f !important;
+  border-color: rgba(212, 175, 55, 0.4) !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05), inset 0 1px 0 #ffffff !important;
+}
+
+.app-theme-light .studio-chip-active {
+  background: linear-gradient(145deg, #fdedcc 0%, #e8cc87 60%, #d3a950 100%) !important;
+  color: #221603 !important;
+  border-color: #b69335 !important;
+  box-shadow: 0 2px 8px rgba(182, 147, 53, 0.35), inset 0 1px 0 #ffffff !important;
+}
+
+.app-theme-light .studio-text-main {
+  color: #2c2013 !important;
+}
+
+.app-theme-light .studio-text-sub {
+  color: #6d5b47 !important;
+}
+
+.app-theme-light .studio-stepper-btn {
+  background: linear-gradient(145deg, #ffffff 0%, #f6efe4 60%, #e7dac7 100%) !important;
+  color: #8c6d1f !important;
+  border-color: rgba(212, 175, 55, 0.5) !important;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.08), inset 0 1px 1px #ffffff !important;
+}
+
+.app-theme-light select option {
+  background-color: #faf6ee !important;
+  color: #2c2013 !important;
+}
+
+/* Gold Embossed Typography */
+.text-gold-emboss {
+  background: linear-gradient(180deg, #fff7d6 0%, #e5c158 50%, #a87d1e 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.8));
+}
+
+.text-gold-emboss-light {
+  background: linear-gradient(180deg, #9d7318 0%, #684807 50%, #442e02 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 1px 1px rgba(255, 255, 255, 0.8));
+}
+
+/* Rotating Conic Border Beam for Login & Header Highlights */
+.login-border-beam {
+  position: relative;
+  border-radius: 24px;
+  background: #06110d;
+  padding: 2px;
+  overflow: hidden;
+}
+
+.login-border-beam::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: conic-gradient(transparent, #10b981, #d4af37, #9333ea, transparent 40%);
+  animation: rotateBeam 6s linear infinite;
+}
+
+.login-inner-box {
+  position: relative;
+  background: rgba(6, 17, 13, 0.94);
+  backdrop-filter: blur(24px);
+  border-radius: 22px;
+  padding: 2rem;
+  z-index: 2;
+}
+
+@keyframes rotateBeam {
+  100% { transform: rotate(360deg); }
+}
+
+/* Glowing Form Inputs */
+.beso-input-glow {
+  background: rgba(15, 23, 42, 0.8);
+  border: 1px solid rgba(16, 185, 129, 0.25);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  color: #eae5d9;
+}
+
+.beso-input-glow:focus {
+  border-color: #10b981;
+  box-shadow: 0 0 15px rgba(16, 185, 129, 0.35);
+  outline: none;
+}
+
+/* HD Canvas High-DPI Rendering Enhancements */
+.canvas-hd-mode {
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: crisp-edges;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  perspective: 1000px;
+  will-change: transform, filter;
+}
+
+.canvas-hd-active {
+  box-shadow: 0 0 40px rgba(16, 185, 129, 0.2), 0 0 80px rgba(212, 175, 55, 0.15) !important;
+}
+
+/* 3D Scene Perspective Wrapper & Carousel Engine */
+.beso-3d-scene {
+  perspective: 1200px;
+  width: 100%;
+  min-height: 380px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.beso-3d-carousel {
+  position: relative;
+  width: 220px;
+  height: 260px;
+  transform-style: preserve-3d;
+  transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.beso-carousel-face {
+  position: absolute;
+  inset: 0;
+  border-radius: 18px;
+  overflow: hidden;
+  border: 1px solid rgba(212, 175, 55, 0.3);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+  background: #06110d;
+}
+
+.beso-carousel-face img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* ============================================================
+   BATCH 18: KINETIC DUAL-TRACK & MAGIC BENTO ENGINE
+   ============================================================ */
+
+/* Opposite Kinetic Track Animations */
+@keyframes kineticTrackLeft {
+  0% { transform: translateX(0%); }
+  100% { transform: translateX(-50%); }
+}
+
+@keyframes kineticTrackRight {
+  0% { transform: translateX(-50%); }
+  100% { transform: translateX(0%); }
+}
+
+.beso-kinetic-track-top {
+  display: flex;
+  width: 200%;
+  animation: kineticTrackLeft 20s linear infinite;
+}
+
+.beso-kinetic-track-bottom {
+  display: flex;
+  width: 200%;
+  animation: kineticTrackRight 20s linear infinite;
+}
+
+/* Polygon Text Highlight Layer */
+.beso-polygon-highlight {
+  background: linear-gradient(160deg, #4cd864 0%, #39b54a 50%, #2a8f38 100%);
+  clip-path: polygon(50% 0px, 100% 10%, 100% 10%, 94% 93%, 50% 100%, 6% 93%, 0px 10%, 0px 10%);
+  padding: 0.25rem 1rem;
+  display: inline-block;
+}
+
+/* Magic Bento Radial Glow & Card Mechanics */
+.magic-bento-card {
+  --glow-x: 50%;
+  --glow-y: 50%;
+  --glow-intensity: 0;
+  --glow-radius: 280px;
+  --glow-color: rgba(57, 181, 74, 0.35);
+}
+
+.magic-bento-card--glow::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 2;
+  border-radius: inherit;
+  background: radial-gradient(
+    var(--glow-radius) circle at var(--glow-x) var(--glow-y),
+    var(--glow-color) 0%,
+    transparent 100%
+  );
+  opacity: var(--glow-intensity);
+  transition: opacity 0.25s ease;
+}
+
+
 

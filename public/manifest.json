@@ -1,0 +1,26 @@
+{
+  "id": "/",
+  "name": "Beso Studio UI",
+  "short_name": "BesoStudio",
+  "description": "استوديو الخامات والفيزياء المادية المتقدمة لواجهات الويب الحديثة",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#061e17",
+  "theme_color": "#061e17",
+  "icons": [
+    {
+      "src": "/pwa-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/pwa-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}

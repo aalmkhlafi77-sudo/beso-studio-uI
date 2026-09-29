@@ -5,10 +5,122 @@ import {
   initialLighting,
   initialTypography,
   initialAnimations,
+  initialMediaParams,
+  COMPONENT_ALLOWED_CATEGORIES,
 } from "./effects.js";
 
 export const ELEMENTS_CONFIG = [
   // 💎 Premium Components Category
+  {
+    id: "carousel-3d-cube",
+    label: "مكعب الصور 3D Cube",
+    subLabel: "4-Face 3D Cube Carousel",
+    glyph: "🧊",
+    status: "active",
+    category: "premium",
+    badge: "3D CUBE",
+    description: "كاروسيل مكعب ثلاثي الأبعاد بـ 4 أوجه صورية يدور بسلاسة 360° بزوايا 90 درجة مع دعم رفع الصور.",
+  },
+  {
+    id: "carousel-3d-hexagon",
+    label: "منشور سداسي الصور 3D Hexagon",
+    subLabel: "6-Face Hexagonal Prism",
+    glyph: "⬡",
+    status: "active",
+    category: "premium",
+    badge: "3D HEX PRISM",
+    description: "منشور سداسي ثلاثي الأبعاد بـ 6 ألواح صورية بزوايا 60 درجة وعمق Z مجسم مع إطار ذهبي مذهب.",
+  },
+  {
+    id: "carousel-3d-octagon",
+    label: "منشور ثماني الصور 3D Octagon",
+    subLabel: "8-Face Octagonal Prism",
+    glyph: "🛑",
+    status: "active",
+    category: "premium",
+    badge: "3D OCTA PRISM",
+    description: "كاروسيل ثماني الأبعاد فخم بـ 8 أوجه صورية بزوايا 45 درجة مع إضاءة أرضية وانعكاسات كرومية.",
+  },
+  {
+    id: "carousel-3d-sphere",
+    label: "مدار الكواكب والصور 3D Sphere",
+    subLabel: "3D Orbital Sphere Carousel",
+    glyph: "🪐",
+    status: "active",
+    category: "premium",
+    badge: "3D ORBITAL",
+    description: "كاروسيل مداري كروي فضائي تدور فيه كبسولات الصور على محاور مكانية ثلاثية مع وميض الجسيمات.",
+  },
+  {
+    id: "marquee-elliptical-track",
+    label: "المسار البيضاوي الدوار Marquee",
+    subLabel: "360° Elliptical Path Marquee",
+    glyph: "🔄",
+    status: "active",
+    category: "premium",
+    badge: "ELLIPSE PATH",
+    description: "مسار شريطي بيضاوي متواصل بزاوية 360 درجة في فضاء ثلاثي الأبعاد للنصوص والأيقونات والصور.",
+  },
+  {
+    id: "marquee-dual-opposite",
+    label: "الشريط المزدوج المتعاكس Marquee",
+    subLabel: "Dual Opposite Kinetic Marquee",
+    glyph: "⇄",
+    status: "active",
+    category: "premium",
+    badge: "DUAL MARQUEE",
+    description: "شريطان إعلانيان متوازيان ومتحركان في اتجاهين متعاكسين مع بطاقات خامات ملونة وتوقف عند التحويم.",
+  },
+  {
+    id: "compound-media-card",
+    label: "بطاقة الوسائط المركبة",
+    subLabel: "Compound Media Card Deck",
+    glyph: "🃏",
+    status: "active",
+    category: "premium",
+    badge: "MEDIA CARD",
+    description: "بطاقة وسائط مركبّة فاخرة (صورة وعنوان ووصف) تضم إطار صورة مدمج مع تحكم بنسبة الأبعاد ونصوص فخمة وزر تفاعلي.",
+  },
+  {
+    id: "beso-compound-card",
+    label: "بطاقة Beso الفاخرة Neon",
+    subLabel: "Interactive Beso Compound Card",
+    glyph: "💎",
+    status: "active",
+    category: "premium",
+    badge: "VIP BESO",
+    description: "بطاقة Beso المركبة التفاعلية بتصميم مادي وتأثيرات نيون متعددة الأطباق وتكامل صوتي فوري.",
+  },
+  {
+    id: "magic-bento-card",
+    label: "بطاقة بينتو التفاعلية Bento",
+    subLabel: "Magic Bento Spotlight Card",
+    glyph: "🍱",
+    status: "active",
+    category: "premium",
+    badge: "MAGIC BENTO",
+    description: "بطاقة بينتو بنمط الإضاءة الشعاعية التفاعلية مع تتبع حركة الماوس وشارة خطوات العمل وصورة خلفية ناعمة.",
+  },
+  {
+    id: "super-promo-slider",
+    label: "بطاقة العروض الترويجية الخماسية",
+    subLabel: "Super Promo 5-Slide Card",
+    glyph: "🏷️",
+    status: "active",
+    category: "premium",
+    badge: "5-SLIDE PROMO",
+    description: "بطاقة عروض ترويجية تفاعلية بـ 5 شرائح متناوبة، تحكم يدوي وتلقائي، وتوقف عند التحويم وتكامل صوتي.",
+  },
+  {
+    id: "brand-identity-card",
+    label: "بطاقة دليل الهوية التجارية Brand Card",
+    subLabel: "Brand Identity Style Guide Card",
+    glyph: "🎨",
+    status: "active",
+    category: "premium",
+    badge: "STYLE GUIDE",
+    description: "بطاقة نظام الهوية البصرية المتكاملة تعرض 6 خامات مادية، مقاسات الخطوط، لوحة الألوان وخصائص الحدود والظلال.",
+  },
   {
     id: "cyber-card",
     label: "بطاقة 3D التفاعلية",
@@ -311,6 +423,26 @@ export const ELEMENTS_CONFIG = [
   },
   // 🌌 Hero Canvas Backgrounds Engine Category
   {
+    id: "split-hero-banner",
+    label: "بنر الهيرو المزدوج المتزامن",
+    subLabel: "Split Hero Synchronized Slider",
+    glyph: "↔️",
+    status: "active",
+    category: "hero",
+    badge: "SPLIT SLIDER",
+    description: "بنر هيرو مزدوج بشريحتي صور يمنى ويسرى متزامنتين تتناوبان كل ثانيتين ومحتوى وسطي موحد.",
+  },
+  {
+    id: "hero-kinetic-dual-track",
+    label: "هيرو المسارات الحركية المزدوجة",
+    subLabel: "Dual-Track Kinetic Hero Canvas",
+    glyph: "⚡",
+    status: "active",
+    category: "hero",
+    badge: "KINETIC DUAL",
+    description: "هيرو كينتيك فائق الحركية بمسارين متعاكسين لا نهائيين، عنوان بحواف مضلعة مقصوصة وزر تفاعلي ببريق مشع.",
+  },
+  {
     id: "hero-cyber-grid",
     label: "خلفية شبكة النيون المستقبلية",
     subLabel: "Cyberpunk 3D Perspective Grid Horizon",
@@ -436,6 +568,19 @@ export const ELEMENTS_CONFIG = [
   },
 ];
 
+// Attach component-bound allowedCategories to all elements
+ELEMENTS_CONFIG.forEach((element) => {
+  if (!element.allowedCategories) {
+    element.allowedCategories = COMPONENT_ALLOWED_CATEGORIES[element.id] || [
+      "typography",
+      "materials",
+      "lighting",
+      "dimensions",
+      "animations",
+    ];
+  }
+});
+
 export const createInitialWorkspaceState = () => {
   const effectState = createInitialEffectState();
   return {
@@ -445,6 +590,7 @@ export const createInitialWorkspaceState = () => {
     lighting: { ...initialLighting },
     typography: { ...initialTypography },
     animations: { ...initialAnimations },
+    media: { ...initialMediaParams },
     soundPreset: "soft-click",
     globalParams: effectState.globalParams,
     cardParams: effectState.cardParams,
@@ -452,6 +598,28 @@ export const createInitialWorkspaceState = () => {
     badgeParams: effectState.badgeParams,
     buttonParams: effectState.buttonParams,
     socialParams: effectState.socialParams,
+    effectState: {
+      "cyber-card": {
+        dimensions: { ...initialDimensions },
+        lighting: { ...initialLighting },
+        typography: { ...initialTypography },
+        animations: { ...initialAnimations },
+        media: { ...initialMediaParams },
+        globalParams: { ...effectState.globalParams },
+      },
+      "split-hero-banner": {
+        dimensions: {
+          ...initialDimensions,
+          width: 1100,
+          height: 480,
+        },
+        lighting: { ...initialLighting },
+        typography: { ...initialTypography },
+        animations: { ...initialAnimations },
+        media: { ...initialMediaParams },
+        globalParams: { ...effectState.globalParams },
+      },
+    },
     elementParams: {
       card: {
         title: "بطاقة Beso الفاخرة",

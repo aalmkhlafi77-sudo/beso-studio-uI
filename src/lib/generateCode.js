@@ -129,7 +129,7 @@ export function generateMaterialCSS(surfaceStyle, params = {}) {
  * Supports dedicated Dimensions, Lighting (Multi-Stop Gradient & LED Under-Glow),
  * Physics (Bevel & Emboss), Typography & Alignment, and Entrance/Hover Animations.
  */
-export function generateElementCode(elementIdOrState, maybeState) {
+function generateElementCodeCore(elementIdOrState, maybeState) {
   let elementId;
   let state;
   if (typeof elementIdOrState === "string") {
@@ -142,7 +142,7 @@ export function generateElementCode(elementIdOrState, maybeState) {
 
   // 1. Unified Dimensions & Opacity
   const dimensions = {
-    width: Math.round(clamp(state.dimensions?.width ?? 360, 80, 800)),
+    width: Math.round(clamp(state.dimensions?.width ?? 360, 50, 1400)),
     height: state.dimensions?.height ?? "auto",
     borderRadius: Math.round(
       clamp(
@@ -166,6 +166,9 @@ export function generateElementCode(elementIdOrState, maybeState) {
     surfaceOpacity: clamp(state.dimensions?.surfaceOpacity ?? 0.85, 0.1, 1),
     borderWidth: Math.round(clamp(state.dimensions?.borderWidth ?? 1, 0, 8)),
     borderColor: normalizeHex(state.dimensions?.borderColor || state.globalParams?.accentColor || DEFAULT_ACCENT_COLOR),
+    shadowDepth: Math.round(clamp(state.dimensions?.shadowDepth ?? 12, 0, 30)),
+    shadowBlur: Math.round(clamp(state.dimensions?.shadowBlur ?? 30, 0, 50)),
+    shadowColor: state.dimensions?.shadowColor || "rgba(0, 0, 0, 0.45)",
   };
 
   // 2. Unified Gradients & LED Lighting
@@ -195,16 +198,17 @@ export function generateElementCode(elementIdOrState, maybeState) {
     ),
     glowSpread: Math.round(clamp(state.lighting?.glowSpread ?? 28, 0, 80)),
     bevelDepth: Math.round(clamp(state.lighting?.bevelDepth ?? state.globalParams?.bevelDepth ?? 4, 0, 16)),
+    glowIntensity: Math.round(clamp(state.lighting?.glowIntensity ?? 100, 0, 200)),
   };
 
-  // 3. Unified Typography & Alignment (Title and Desc operate 100% independently)
+  // 3. Unified Typography & Alignment (Multi-Target Tabbed Controller)
   const typography = {
     titleSize: Math.round(
       clamp(
         state.typography?.titleSize ??
           (state.globalParams?.fontSize ? state.globalParams.fontSize + 4 : 22),
-        12,
-        44
+        8,
+        140
       )
     ),
     titleColor: normalizeHex(
@@ -213,12 +217,25 @@ export function generateElementCode(elementIdOrState, maybeState) {
           ? state.globalParams.textColor
           : "#fff8e7")
     ),
+    titleGradient: state.typography?.titleGradient || "",
+    titleFontFamily: state.typography?.titleFontFamily || "Alexandria, sans-serif",
+    titleWeight: Number(state.typography?.titleWeight || 700),
+    titleItalic: Boolean(state.typography?.titleItalic),
+    titleAlign: ["right", "center", "left", "justify"].includes(state.typography?.titleAlign)
+      ? state.typography.titleAlign
+      : (state.typography?.textAlign || "right"),
+    titleShadowX: Math.round(clamp(state.typography?.titleShadowX ?? 0, -20, 20)),
+    titleShadowY: Math.round(clamp(state.typography?.titleShadowY ?? state.typography?.titleShadowDepth ?? 2, -20, 30)),
+    titleShadowDepth: Math.round(clamp(state.typography?.titleShadowDepth ?? 2, 0, 30)),
+    titleShadowBlur: Math.round(clamp(state.typography?.titleShadowBlur ?? 4, 0, 50)),
+    titleShadowColor: state.typography?.titleShadowColor || "rgba(0, 0, 0, 0.65)",
+
     descSize: Math.round(
       clamp(
         state.typography?.descSize ??
           (state.globalParams?.fontSize ?? 14),
-        10,
-        28
+        8,
+        140
       )
     ),
     descColor: normalizeHex(
@@ -227,9 +244,56 @@ export function generateElementCode(elementIdOrState, maybeState) {
           ? state.globalParams.textColor
           : "#eae5d9")
     ),
-    textAlign: ["right", "center", "left"].includes(state.typography?.textAlign)
+    descGradient: state.typography?.descGradient || "",
+    descFontFamily: state.typography?.descFontFamily || "Alexandria, sans-serif",
+    descWeight: Number(state.typography?.descWeight || 400),
+    descItalic: Boolean(state.typography?.descItalic),
+    descAlign: ["right", "center", "left", "justify"].includes(state.typography?.descAlign)
+      ? state.typography.descAlign
+      : (state.typography?.textAlign || "right"),
+    descShadowX: Math.round(clamp(state.typography?.descShadowX ?? 0, -20, 20)),
+    descShadowY: Math.round(clamp(state.typography?.descShadowY ?? state.typography?.descShadowDepth ?? 1, -20, 30)),
+    descShadowDepth: Math.round(clamp(state.typography?.descShadowDepth ?? 1, 0, 30)),
+    descShadowBlur: Math.round(clamp(state.typography?.descShadowBlur ?? 2, 0, 50)),
+    descShadowColor: state.typography?.descShadowColor || "rgba(0, 0, 0, 0.5)",
+
+    buttonSize: Math.round(
+      clamp(
+        state.typography?.buttonSize ??
+          (state.globalParams?.fontSize ?? 15),
+        8,
+        140
+      )
+    ),
+    buttonColor: normalizeHex(
+      state.typography?.buttonColor ||
+        (state.globalParams?.textColor && state.globalParams.textColor !== "#ffffff"
+          ? state.globalParams.textColor
+          : "#fff8e7")
+    ),
+    buttonGradient: state.typography?.buttonGradient || "",
+    buttonFontFamily: state.typography?.buttonFontFamily || "Alexandria, sans-serif",
+    buttonWeight: Number(state.typography?.buttonWeight || 600),
+    buttonItalic: Boolean(state.typography?.buttonItalic),
+    buttonAlign: ["right", "center", "left", "justify"].includes(state.typography?.buttonAlign)
+      ? state.typography.buttonAlign
+      : "center",
+    buttonShadowX: Math.round(clamp(state.typography?.buttonShadowX ?? 0, -20, 20)),
+    buttonShadowY: Math.round(clamp(state.typography?.buttonShadowY ?? state.typography?.buttonShadowDepth ?? 1, -20, 30)),
+    buttonShadowDepth: Math.round(clamp(state.typography?.buttonShadowDepth ?? 1, 0, 30)),
+    buttonShadowBlur: Math.round(clamp(state.typography?.buttonShadowBlur ?? 3, 0, 50)),
+    buttonShadowColor: state.typography?.buttonShadowColor || "rgba(0, 0, 0, 0.4)",
+
+    badgeText: state.typography?.badgeText || state.badgeParams?.text || state.badgeParams?.label || "VIP MATERIAL",
+    badgeSize: Math.round(clamp(state.typography?.badgeSize ?? 10, 8, 48)),
+    badgeColor: normalizeHex(state.typography?.badgeColor || state.globalParams?.accentColor || "#d4af37"),
+    badgeWeight: Number(state.typography?.badgeWeight || 700),
+    badgeAlign: state.typography?.badgeAlign || "center",
+
+    fontFamily: state.typography?.fontFamily || state.typography?.titleFontFamily || "inherit",
+    textAlign: ["right", "center", "left", "justify"].includes(state.typography?.textAlign)
       ? state.typography.textAlign
-      : "right",
+      : (state.typography?.titleAlign || "right"),
     textShadowDepth: Math.round(clamp(state.typography?.textShadowDepth ?? 2, 0, 10)),
     titleText:
       (state.cardParams?.title && state.cardParams.title !== "بطاقة Beso الفاخرة")
@@ -239,14 +303,134 @@ export function generateElementCode(elementIdOrState, maybeState) {
       (state.cardParams?.description && state.cardParams.description !== "بطاقة تفاعلية محبوكة بتأثيرات السطح المادي والظلال الفيزيائية المزدوجة.")
         ? state.cardParams.description
         : (state.typography?.descText || state.cardParams?.description || state.elementParams?.card?.description || "بطاقة تفاعلية محبوكة بتأثيرات السطح المادي والظلال الفيزيائية المزدوجة."),
+    buttonText:
+      state.typography?.buttonText ||
+      state.buttonParams?.text ||
+      state.globalParams?.buttonText ||
+      "تفاعل ملموس ✦",
   };
 
   // 4. Unified Animations & Transitions
   const animations = {
-    transitionSpeed: clamp(state.animations?.transitionSpeed ?? 0.35, 0.1, 1.5),
+    transitionSpeed: clamp(state.animations?.transitionSpeed ?? 0.35, 0.1, 3.0),
     entranceAnimation: state.animations?.entranceAnimation || "fadeUp",
     hoverEffect: state.animations?.hoverEffect || "liftScale",
+    hoverLift: Number(state.animations?.hoverLift ?? 8),
+    hoverScale: Number(state.animations?.hoverScale ?? 1.05),
+    hoverGlowExpansion: Number(state.animations?.hoverGlowExpansion ?? 20),
+    enableHoverPhysics: state.animations?.enableHoverPhysics !== false,
     particleOverlay: state.animations?.particleOverlay || state.animations?.activeParticle || "none",
+  };
+
+  // 5. Unified Media & Image Backdrops (Batch 15 & Master Suite)
+  const media = {
+    imageWidth: clamp(state.media?.imageWidth ?? state.branding?.imgWidth ?? 360, 20, 1200),
+    imageHeight: clamp(state.media?.imageHeight ?? state.branding?.imgHeight ?? 200, 20, 1200),
+    isAspectLocked: state.media?.isAspectLocked ?? true,
+    aspectRatio: state.media?.aspectRatio || "16:9",
+    customImgUrl: state.media?.customImgUrl || "",
+    objectFit: state.branding?.objectFit || state.media?.objectFit || "cover",
+
+    carouselImages: state.media?.carouselImages || ["", "", "", "", "", "", "", ""],
+    carouselRotationSpeed: clamp(state.media?.carouselRotationSpeed ?? 16, 2, 60),
+    carouselPerspective: clamp(state.media?.carouselPerspective ?? 1200, 500, 2500),
+    carouselTiltAngle: clamp(state.media?.carouselTiltAngle ?? 10, 0, 45),
+    carouselHoverPause: state.media?.carouselHoverPause ?? true,
+    carouselImgWidth: clamp(state.media?.carouselImgWidth ?? state.media?.imageWidth ?? 360, 20, 1200),
+    carouselImgHeight: clamp(state.media?.carouselImgHeight ?? state.media?.imageHeight ?? 200, 20, 1200),
+    carouselObjectFit: state.media?.carouselObjectFit || state.media?.objectFit || "cover",
+    isCarouselAspectLocked: state.media?.isCarouselAspectLocked ?? state.media?.isAspectLocked ?? true,
+
+    heroBgImage: state.media?.heroBgImage || state.media?.heroBgUrl || "",
+    heroBgUrl: state.media?.heroBgUrl || state.media?.heroBgImage || "",
+    heroBgWidth: clamp(state.media?.heroBgWidth ?? state.media?.imageWidth ?? 360, 20, 1200),
+    heroBgHeight: clamp(state.media?.heroBgHeight ?? state.media?.imageHeight ?? 200, 20, 1200),
+    heroBgOverlayOpacity: clamp(state.media?.heroBgOverlayOpacity ?? 0.85, 0, 1),
+    heroBgTint: normalizeHex(state.media?.heroBgTint || "#041a12"),
+    heroBgObjectFit: state.media?.heroBgObjectFit || state.media?.objectFit || "cover",
+    isHeroAspectLocked: state.media?.isHeroAspectLocked ?? state.media?.isAspectLocked ?? true,
+    heroBgBlur: clamp(state.media?.heroBgBlur ?? 0, 0, 20),
+
+    logoUrl: state.branding?.logoUrl || state.media?.logoUrl || "/brand/beso-studio-ui.png",
+    logoWidth: clamp(state.branding?.logoWidth ?? state.media?.logoWidth ?? 64, 20, 1200),
+    logoHeight: clamp(state.branding?.logoHeight ?? state.media?.logoHeight ?? 64, 20, 1200),
+    logoKeepAspect: state.branding?.isLogoAspectLocked ?? state.media?.isLogoAspectLocked ?? state.media?.logoKeepAspect ?? true,
+    isLogoAspectLocked: state.branding?.isLogoAspectLocked ?? state.media?.isLogoAspectLocked ?? true,
+    logoObjectFit: state.branding?.logoObjectFit || state.media?.logoObjectFit || (state.media?.logoKeepAspect ? "contain" : state.media?.objectFit || "cover"),
+    logoGlowColor: normalizeHex(state.media?.logoGlowColor || "#d4af37"),
+    logoGlowSpread: clamp(state.media?.logoGlowSpread ?? 15, 0, 50),
+    logoDropShadow: state.media?.logoDropShadow ?? true,
+    brandLogoSize: clamp(state.media?.brandLogoSize ?? 64, 20, 1200),
+    brandFontBase: clamp(state.media?.brandFontBase ?? 16, 10, 36),
+    marqueeSpeed: clamp(state.media?.marqueeSpeed ?? 16, 2, 60),
+    marqueeRadiusX: clamp(state.media?.marqueeRadiusX ?? 160, 60, 350),
+    marqueeRadiusY: clamp(state.media?.marqueeRadiusY ?? 160, 60, 350),
+    marqueeIconSize: clamp(state.media?.marqueeIconSize ?? 18, 10, 48),
+    marqueeItemsTop: state.media?.marqueeItemsTop || "💎 Glassmorphism, 👑 Royal Gold, ⚡ Cyber Neon, 🏛️ Soft Ivory, ⚙️ Brushed Metal, 🌌 Cosmic Orbit",
+    marqueeItemsBottom: state.media?.marqueeItemsBottom || "🔥 Hot Embers, 🌧️ Cyber Rain, 🔮 Quantum Orbs, 📐 Figma Frame, 🛍️ 3D Tote, 🛒 Kinetic Cart",
+    marqueeInvertDirection: Boolean(state.media?.marqueeInvertDirection),
+
+    // Batch 18: Kinetic Dual-Track Hero Canvas parameters
+    kineticTrackSpeed: clamp(state.media?.kineticTrackSpeed ?? 20, 5, 60),
+    kineticTrackInvert: Boolean(state.media?.kineticTrackInvert),
+    kineticPillTag: state.media?.kineticPillTag || "حلول رقمية مخصصة للأعمال",
+    kineticHeadline: state.media?.kineticHeadline || typography.titleText || "نصمم حلولاً رقمية مبتكرة",
+    kineticHighlightWord: state.media?.kineticHighlightWord || "عــــلامتك",
+    kineticHighlightGradient: state.media?.kineticHighlightGradient || "linear-gradient(160deg, #4cd864 0%, #39b54a 50%, #2a8f38 100%)",
+    kineticClipPath: state.media?.kineticClipPath || "polygon(50% 0px, 100% 10%, 94% 93%, 50% 100%, 6% 93%, 0px 10%)",
+    kineticSubtext: state.media?.kineticSubtext || typography.descText || "واجهات تفاعلية مذهلة بحركات لا نهائية ومؤثرات فيزيائية ملموسة.",
+    kineticCtaText: state.media?.kineticCtaText || typography.buttonText || "اكتشف إمكانياتنا ✦",
+    kineticTrackTopImages: state.media?.kineticTrackTopImages || [
+      "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=600&auto=format&fit=crop",
+      "https://images.unsplash.com/photo-1550745165-9bc0b252726f?q=80&w=600&auto=format&fit=crop",
+      "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?q=80&w=600&auto=format&fit=crop",
+      "https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?q=80&w=600&auto=format&fit=crop"
+    ],
+    kineticTrackBottomImages: state.media?.kineticTrackBottomImages || [
+      "https://images.unsplash.com/photo-1558655146-d09347e92766?q=80&w=600&auto=format&fit=crop",
+      "https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=600&auto=format&fit=crop",
+      "https://images.unsplash.com/photo-1634017839464-5c339ebe3cb4?q=80&w=600&auto=format&fit=crop",
+      "https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&w=600&auto=format&fit=crop"
+    ],
+
+    // Batch 18: Magic Bento Card Component parameters
+    bentoStep: state.media?.bentoStep || "04",
+    bentoCategory: state.media?.bentoCategory || "منهجية العمل",
+    bentoTitle: state.media?.bentoTitle || typography.titleText || "التطوير",
+    bentoDescription: state.media?.bentoDescription || typography.descText || "ننفذ بكود منظم، تكاملات آمنة، وقاعدة بيانات قابلة للتوسع مع المشروع.",
+    bentoBgImage: state.media?.bentoBgImage || "https://images.unsplash.com/photo-1555066931-4365d14bab8c?q=80&w=800&auto=format&fit=crop",
+    bentoGlowRadius: clamp(state.media?.bentoGlowRadius ?? 280, 100, 500),
+    bentoGlowIntensity: clamp(state.media?.bentoGlowIntensity ?? 0.85, 0.1, 1),
+    bentoGlowColor: state.media?.bentoGlowColor || "rgba(57, 181, 74, 0.35)",
+
+    // Batch 18 & 20: Split Hero Banner parameters
+    splitHeroBrand: state.media?.splitHeroBrand || "BESO",
+    splitHeroBrandSize: clamp(state.media?.splitHeroBrandSize ?? 38, 10, 140),
+    splitHeroBrandColor: normalizeHex(state.media?.splitHeroBrandColor || "#e50010"),
+    splitHeroBrandWeight: Number(state.media?.splitHeroBrandWeight || 900),
+    splitHeroDiscountBadge: state.media?.splitHeroDiscountBadge || "خصم",
+    splitHeroBadgeSize: clamp(state.media?.splitHeroBadgeSize ?? 15, 10, 80),
+    splitHeroBadgeColor: normalizeHex(state.media?.splitHeroBadgeColor || "#e50010"),
+    splitHeroDiscountTitle: state.media?.splitHeroDiscountTitle || "حتى 70%",
+    splitHeroTitleSize: clamp(state.media?.splitHeroTitleSize ?? 42, 10, 140),
+    splitHeroTitleColor: normalizeHex(state.media?.splitHeroTitleColor || "#e50010"),
+    splitHeroSubtext: state.media?.splitHeroSubtext || "عروض منتصف الموسم لفترة محدودة",
+    splitHeroSubtextSize: clamp(state.media?.splitHeroSubtextSize ?? 13, 8, 48),
+    splitHeroSubtextColor: normalizeHex(state.media?.splitHeroSubtextColor || "#333333"),
+    splitHeroAlign: state.media?.splitHeroAlign || "center",
+    splitHeroInterval: clamp(state.media?.splitHeroInterval ?? 2.0, 0.5, 30),
+    splitHeroOverlayBlur: clamp(state.media?.splitHeroOverlayBlur ?? 0, 0, 40),
+    splitHeroOverlayBg: state.media?.splitHeroOverlayBg || "transparent",
+    splitHeroRightImages: state.media?.splitHeroRightImages || [
+      "https://images.unsplash.com/photo-1483985988355-763728e1935b?q=80&w=800&auto=format&fit=crop",
+      "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=800&auto=format&fit=crop",
+      "https://images.unsplash.com/photo-1529139574466-a303027c1d8b?q=80&w=800&auto=format&fit=crop"
+    ],
+    splitHeroLeftImages: state.media?.splitHeroLeftImages || [
+      "https://images.unsplash.com/photo-1509631179647-0177331693ae?q=80&w=800&auto=format&fit=crop",
+      "https://images.unsplash.com/photo-1490481651871-ab68de25d43d?q=80&w=800&auto=format&fit=crop",
+      "https://images.unsplash.com/photo-1469334031218-e382a71b716b?q=80&w=800&auto=format&fit=crop"
+    ],
   };
 
   const globalParams = {
@@ -263,15 +447,19 @@ export function generateElementCode(elementIdOrState, maybeState) {
     ? `0 ${Math.max(1, Math.round(lighting.glowSpread / 2))}px ${lighting.glowSpread}px ${hexToRgba(lighting.glowColor, 0.55)}`
     : `0 10px 30px rgba(0, 0, 0, 0.5)`;
 
+  const elementBoxShadow = `0px ${dimensions.shadowDepth}px ${dimensions.shadowBlur}px ${dimensions.shadowColor}`;
+
   const bevelShadow =
     lighting.bevelDepth > 0
       ? `inset 0 1px ${lighting.bevelDepth}px rgba(255, 255, 255, 0.45), inset 0 -${lighting.bevelDepth}px ${lighting.bevelDepth * 2}px rgba(0, 0, 0, 0.7)`
       : `inset 0 1px 0 rgba(255, 255, 255, 0.25)`;
 
-  const textShadowCSS =
-    typography.textShadowDepth > 0
-      ? `text-shadow: 0 ${typography.textShadowDepth}px ${typography.textShadowDepth * 2}px rgba(0, 0, 0, 0.65);`
-      : "";
+  const textShadowDepth = typography.titleShadowDepth ?? typography.textShadowDepth ?? 2;
+  const textShadowBlur = typography.titleShadowBlur ?? (textShadowDepth * 2) ?? 4;
+  const textShadowColor = typography.titleShadowColor || "rgba(0, 0, 0, 0.65)";
+  const textShadowCSS = textShadowDepth > 0
+    ? `text-shadow: 0px ${textShadowDepth}px ${textShadowBlur}px ${textShadowColor};`
+    : "";
 
   // 5. Dynamic Material Surface Selection (Glass, Metal, Ivory, Neon, Flat)
   const surfaceStyle = state.globalParams?.surfaceStyle || state.activeSurface || "glass";
@@ -302,6 +490,7 @@ export function generateElementCode(elementIdOrState, maybeState) {
   background: ${metalGradient};
   border: ${dimensions.borderWidth}px solid ${lighting.glowColor};
   box-shadow: 
+    ${elementBoxShadow},
     inset 0 ${bevelHighlight}px ${bevelBlur}px ${hexToRgba("#ffffff", 0.85)},
     inset 0 -${bevelShadowDepth}px ${bevelShadowBlur}px ${hexToRgba("#000000", 0.8)},
     0 ${bevelDepth * 2}px ${bevelDepth * 4}px rgba(0, 0, 0, 0.55),
@@ -313,6 +502,7 @@ export function generateElementCode(elementIdOrState, maybeState) {
   border: ${dimensions.borderWidth}px solid #ffffff;
   color: #1e2022;
   box-shadow: 
+    ${elementBoxShadow},
     inset 0 1px ${Math.max(1, bevelDepth)}px rgba(255, 255, 255, 0.9),
     inset 0 -${Math.max(1, Math.round(bevelDepth / 2))}px ${Math.max(2, bevelDepth)}px rgba(0, 0, 0, 0.12),
     ${bevelDepth}px ${bevelDepth}px ${bevelDepth * 3}px rgba(0, 0, 0, 0.25),
@@ -324,6 +514,7 @@ export function generateElementCode(elementIdOrState, maybeState) {
   background: ${neonGradient};
   border: ${Math.max(2, dimensions.borderWidth)}px solid ${lighting.glowColor};
   box-shadow: 
+    ${elementBoxShadow},
     inset 0 1px ${Math.max(1, bevelDepth)}px rgba(255, 255, 255, 0.7),
     inset 0 -${Math.max(1, Math.round(bevelDepth / 2))}px ${Math.max(2, bevelDepth * 2)}px rgba(0, 0, 0, 0.75),
     0 0 20px ${hexToRgba(lighting.glowColor, 0.65)},
@@ -335,6 +526,7 @@ export function generateElementCode(elementIdOrState, maybeState) {
   background: ${bgGradient};
   border: ${dimensions.borderWidth}px solid ${hexToRgba(lighting.glowColor, 0.45)};
   box-shadow: 
+    ${elementBoxShadow},
     inset 0 1px ${Math.max(1, bevelDepth)}px rgba(255, 255, 255, 0.35),
     0 8px 24px rgba(0, 0, 0, 0.35),
     ${bottomGlowCSS};`;
@@ -346,6 +538,7 @@ export function generateElementCode(elementIdOrState, maybeState) {
   -webkit-backdrop-filter: blur(20px);
   border: ${dimensions.borderWidth}px solid ${hexToRgba(lighting.glowColor, 0.4)};
   box-shadow: 
+    ${elementBoxShadow},
     0 12px 40px rgba(0, 0, 0, 0.45),
     ${bevelShadow},
     ${bottomGlowCSS};`;
@@ -403,6 +596,1041 @@ export function generateElementCode(elementIdOrState, maybeState) {
   50% { opacity: 1; transform: scale(1.03); box-shadow: 0 0 35px ${hexToRgba(lighting.glowColor, 0.85)}; }
   100% { opacity: 1; transform: scale(1); }
 }`;
+
+  // ==========================================
+  // BATCH 15: 3D POLYHEDRAL CAROUSELS, PATH MARQUEES & BRAND IDENTITY STYLE GUIDE
+  // ==========================================
+
+  // 1. CAROUSEL 3D CUBE (4 Faces)
+  if (elementId === "carousel-3d-cube") {
+    const title = escapeHtml(typography.titleText || "مكعب الصور 3D Cube");
+    const desc = escapeHtml(typography.descText || "كاروسيل مكعب مجسم بـ 4 أوجه صورية يدور في فضاء ثلاثي الأبعاد.");
+    const cardW = state.media?.carouselImgWidth ? clamp(state.media.carouselImgWidth, 20, 1200) : Math.min(260, Math.max(160, Math.round(dimensions.width * 0.65)));
+    const cardH = state.media?.carouselImgHeight ? clamp(state.media.carouselImgHeight, 20, 1200) : Math.min(320, Math.max(200, Math.round(dimensions.width * 0.8)));
+    const translateDist = Math.round(cardW / 2 + 20);
+
+    const defaultGradients = [
+      "linear-gradient(135deg, #0d3b2e 0%, #10b981 100%)",
+      "linear-gradient(135deg, #16157f 0%, #3b82f6 100%)",
+      "linear-gradient(135deg, #4a154b 0%, #9333ea 100%)",
+      "linear-gradient(135deg, #7c2d12 0%, #ea580c 100%)",
+    ];
+
+    const faceContents = [0, 1, 2, 3].map((idx) => {
+      const img = media.carouselImages[idx];
+      const bg = defaultGradients[idx];
+      if (img) {
+        return `<div class="beso-cube-face beso-cube-face-${idx + 1}">
+          <img src="${img}" alt="Face ${idx + 1}" />
+          <div class="beso-face-overlay">
+            <span class="beso-face-badge">وجه ${idx + 1}</span>
+          </div>
+        </div>`;
+      }
+      return `<div class="beso-cube-face beso-cube-face-${idx + 1}" style="background: ${bg};">
+        <div class="beso-face-placeholder">
+          <span class="beso-face-icon">💎</span>
+          <span class="beso-face-title">لوح صور ${idx + 1}</span>
+        </div>
+      </div>`;
+    }).join("\n        ");
+
+    const css = `.beso-cube-scene {
+  perspective: ${media.carouselPerspective}px;
+  width: 100%;
+  min-height: 420px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  box-sizing: border-box;
+  animation: besoEntrance-${animations.entranceAnimation} 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.beso-cube-stage {
+  position: relative;
+  width: ${cardW}px;
+  height: ${cardH}px;
+  transform-style: preserve-3d;
+  animation: besoCubeSpin ${media.carouselRotationSpeed}s linear infinite;
+  ${media.carouselHoverPause ? "transition: transform 0.6s ease;" : ""}
+}
+
+${media.carouselHoverPause ? `.beso-cube-scene:hover .beso-cube-stage {
+  animation-play-state: paused;
+}` : ""}
+
+.beso-cube-face {
+  position: absolute;
+  inset: 0;
+  border-radius: ${dimensions.borderRadius}px;
+  overflow: hidden;
+  border: ${dimensions.borderWidth}px solid ${lighting.glowColor};
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.7), inset 0 1px 2px rgba(255, 255, 255, 0.3);
+  background: #06110d;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  backface-visibility: visible;
+}
+
+.beso-cube-face img, .beso-carousel-face img {
+  width: 100%;
+  height: 100%;
+  object-fit: ${media.carouselObjectFit || media.objectFit || "cover"};
+}
+
+.beso-cube-face-1 { transform: rotateY(0deg) translateZ(${translateDist}px); }
+.beso-cube-face-2 { transform: rotateY(90deg) translateZ(${translateDist}px); }
+.beso-cube-face-3 { transform: rotateY(180deg) translateZ(${translateDist}px); }
+.beso-cube-face-4 { transform: rotateY(270deg) translateZ(${translateDist}px); }
+
+.beso-face-overlay {
+  position: absolute;
+  bottom: 0;
+  inset-x: 0;
+  padding: 10px;
+  background: linear-gradient(to top, rgba(0,0,0,0.85), transparent);
+  display: flex;
+  justify-content: center;
+}
+
+.beso-face-badge {
+  padding: 3px 10px;
+  border-radius: 99px;
+  font-size: 10px;
+  font-weight: 700;
+  background: rgba(212, 175, 55, 0.25);
+  border: 1px solid ${lighting.glowColor};
+  color: ${lighting.glowColor};
+}
+
+.beso-face-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  color: #fff8e7;
+  font-weight: 700;
+  font-size: 14px;
+}
+
+.beso-face-icon {
+  font-size: 28px;
+  filter: drop-shadow(0 0 10px ${lighting.glowColor});
+}
+
+.beso-cube-reflection-floor {
+  width: ${Math.round(cardW * 1.5)}px;
+  height: 20px;
+  margin-top: 35px;
+  border-radius: 50%;
+  background: radial-gradient(ellipse, ${hexToRgba(lighting.glowColor, 0.45)} 0%, transparent 70%);
+  filter: blur(8px);
+}
+
+@keyframes besoCubeSpin {
+  0% { transform: rotateX(-${media.carouselTiltAngle}deg) rotateY(0deg); }
+  100% { transform: rotateX(-${media.carouselTiltAngle}deg) rotateY(360deg); }
+}`.trim();
+
+    const html = `<div class="beso-cube-scene">
+  <div class="beso-cube-stage">
+    ${faceContents}
+  </div>
+  <div class="beso-cube-reflection-floor"></div>
+</div>`;
+
+    return { html, css };
+  }
+
+  // 2. CAROUSEL 3D HEXAGON (6 Faces)
+  if (elementId === "carousel-3d-hexagon") {
+    const cardW = state.media?.carouselImgWidth ? clamp(state.media.carouselImgWidth, 20, 1200) : Math.min(220, Math.max(140, Math.round(dimensions.width * 0.55)));
+    const cardH = state.media?.carouselImgHeight ? clamp(state.media.carouselImgHeight, 20, 1200) : Math.min(280, Math.max(180, Math.round(dimensions.width * 0.7)));
+    const translateDist = Math.round(cardW * 0.866 + 30); // ~220px
+
+    const defaultGradients = [
+      "linear-gradient(135deg, #0d3b2e, #10b981)",
+      "linear-gradient(135deg, #16157f, #3b82f6)",
+      "linear-gradient(135deg, #4a154b, #9333ea)",
+      "linear-gradient(135deg, #7c2d12, #ea580c)",
+      "linear-gradient(135deg, #134e4a, #14b8a6)",
+      "linear-gradient(135deg, #312e81, #6366f1)",
+    ];
+
+    const faceContents = [0, 1, 2, 3, 4, 5].map((idx) => {
+      const img = media.carouselImages[idx];
+      const bg = defaultGradients[idx];
+      const angle = idx * 60;
+      if (img) {
+        return `<div class="beso-hex-face" style="transform: rotateY(${angle}deg) translateZ(${translateDist}px);">
+          <img src="${img}" alt="Face ${idx + 1}" />
+          <div class="beso-face-overlay">
+            <span class="beso-face-badge">خامة ${idx + 1}/6</span>
+          </div>
+        </div>`;
+      }
+      return `<div class="beso-hex-face" style="transform: rotateY(${angle}deg) translateZ(${translateDist}px); background: ${bg};">
+        <div class="beso-face-placeholder">
+          <span class="beso-face-icon">⬡</span>
+          <span class="beso-face-title">لوح سداسي ${idx + 1}</span>
+        </div>
+      </div>`;
+    }).join("\n        ");
+
+    const css = `.beso-hex-scene {
+  perspective: ${media.carouselPerspective}px;
+  width: 100%;
+  min-height: 440px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  animation: besoEntrance-${animations.entranceAnimation} 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.beso-hex-stage {
+  position: relative;
+  width: ${cardW}px;
+  height: ${cardH}px;
+  transform-style: preserve-3d;
+  animation: besoHexSpin ${media.carouselRotationSpeed}s linear infinite;
+  ${media.carouselHoverPause ? "transition: transform 0.6s ease;" : ""}
+}
+
+${media.carouselHoverPause ? `.beso-hex-scene:hover .beso-hex-stage {
+  animation-play-state: paused;
+}` : ""}
+
+.beso-hex-face {
+  position: absolute;
+  inset: 0;
+  border-radius: ${dimensions.borderRadius}px;
+  overflow: hidden;
+  border: ${dimensions.borderWidth}px solid ${lighting.glowColor};
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.75), inset 0 1px 2px rgba(255, 255, 255, 0.3);
+  background: #05130d;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.beso-hex-face img, .beso-carousel-face img {
+  width: 100%;
+  height: 100%;
+  object-fit: ${media.carouselObjectFit || media.objectFit || "cover"};
+}
+
+.beso-face-overlay {
+  position: absolute;
+  bottom: 0;
+  inset-x: 0;
+  padding: 8px;
+  background: linear-gradient(to top, rgba(0,0,0,0.9), transparent);
+  display: flex;
+  justify-content: center;
+}
+
+.beso-face-badge {
+  padding: 3px 10px;
+  border-radius: 99px;
+  font-size: 10px;
+  font-weight: 700;
+  background: rgba(212, 175, 55, 0.25);
+  border: 1px solid ${lighting.glowColor};
+  color: ${lighting.glowColor};
+}
+
+.beso-face-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  color: #fff8e7;
+  font-weight: 700;
+  font-size: 13px;
+}
+
+.beso-face-icon {
+  font-size: 26px;
+  filter: drop-shadow(0 0 10px ${lighting.glowColor});
+}
+
+.beso-hex-floor {
+  width: ${Math.round(translateDist * 2)}px;
+  height: 24px;
+  margin-top: 40px;
+  border-radius: 50%;
+  background: radial-gradient(ellipse, ${hexToRgba(lighting.glowColor, 0.5)} 0%, transparent 70%);
+  filter: blur(10px);
+}
+
+@keyframes besoHexSpin {
+  0% { transform: rotateX(-${media.carouselTiltAngle}deg) rotateY(0deg); }
+  100% { transform: rotateX(-${media.carouselTiltAngle}deg) rotateY(360deg); }
+}`.trim();
+
+    const html = `<div class="beso-hex-scene">
+  <div class="beso-hex-stage">
+    ${faceContents}
+  </div>
+  <div class="beso-hex-floor"></div>
+</div>`;
+
+    return { html, css };
+  }
+
+  // 3. CAROUSEL 3D OCTAGON (8 Faces)
+  if (elementId === "carousel-3d-octagon") {
+    const cardW = state.media?.carouselImgWidth ? clamp(state.media.carouselImgWidth, 20, 1200) : Math.min(180, Math.max(120, Math.round(dimensions.width * 0.45)));
+    const cardH = state.media?.carouselImgHeight ? clamp(state.media.carouselImgHeight, 20, 1200) : Math.min(250, Math.max(160, Math.round(dimensions.width * 0.62)));
+    const translateDist = Math.round(cardW * 1.207 + 40); // ~290px
+
+    const defaultGradients = [
+      "linear-gradient(135deg, #0d3b2e, #10b981)",
+      "linear-gradient(135deg, #16157f, #3b82f6)",
+      "linear-gradient(135deg, #4a154b, #9333ea)",
+      "linear-gradient(135deg, #7c2d12, #ea580c)",
+      "linear-gradient(135deg, #134e4a, #14b8a6)",
+      "linear-gradient(135deg, #312e81, #6366f1)",
+      "linear-gradient(135deg, #701a75, #d946ef)",
+      "linear-gradient(135deg, #78350f, #d97706)",
+    ];
+
+    const faceContents = [0, 1, 2, 3, 4, 5, 6, 7].map((idx) => {
+      const img = media.carouselImages[idx];
+      const bg = defaultGradients[idx];
+      const angle = idx * 45;
+      if (img) {
+        return `<div class="beso-octa-face" style="transform: rotateY(${angle}deg) translateZ(${translateDist}px);">
+          <img src="${img}" alt="Face ${idx + 1}" />
+          <div class="beso-face-overlay">
+            <span class="beso-face-badge">لوح ${idx + 1}/8</span>
+          </div>
+        </div>`;
+      }
+      return `<div class="beso-octa-face" style="transform: rotateY(${angle}deg) translateZ(${translateDist}px); background: ${bg};">
+        <div class="beso-face-placeholder">
+          <span class="beso-face-icon">🛑</span>
+          <span class="beso-face-title">لوح ${idx + 1}</span>
+        </div>
+      </div>`;
+    }).join("\n        ");
+
+    const css = `.beso-octa-scene {
+  perspective: ${media.carouselPerspective}px;
+  width: 100%;
+  min-height: 450px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  animation: besoEntrance-${animations.entranceAnimation} 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.beso-octa-stage {
+  position: relative;
+  width: ${cardW}px;
+  height: ${cardH}px;
+  transform-style: preserve-3d;
+  animation: besoOctaSpin ${media.carouselRotationSpeed}s linear infinite;
+  ${media.carouselHoverPause ? "transition: transform 0.6s ease;" : ""}
+}
+
+${media.carouselHoverPause ? `.beso-octa-scene:hover .beso-octa-stage {
+  animation-play-state: paused;
+}` : ""}
+
+.beso-octa-face {
+  position: absolute;
+  inset: 0;
+  border-radius: ${dimensions.borderRadius}px;
+  overflow: hidden;
+  border: ${dimensions.borderWidth}px solid ${lighting.glowColor};
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.8), inset 0 1px 2px rgba(255, 255, 255, 0.25);
+  background: #040e0a;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.beso-octa-face img, .beso-carousel-face img {
+  width: 100%;
+  height: 100%;
+  object-fit: ${media.carouselObjectFit || media.objectFit || "cover"};
+}
+
+.beso-face-overlay {
+  position: absolute;
+  bottom: 0;
+  inset-x: 0;
+  padding: 6px;
+  background: linear-gradient(to top, rgba(0,0,0,0.9), transparent);
+  display: flex;
+  justify-content: center;
+}
+
+.beso-face-badge {
+  padding: 2px 8px;
+  border-radius: 99px;
+  font-size: 9px;
+  font-weight: 700;
+  background: rgba(212, 175, 55, 0.25);
+  border: 1px solid ${lighting.glowColor};
+  color: ${lighting.glowColor};
+}
+
+.beso-face-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  color: #fff8e7;
+  font-weight: 700;
+  font-size: 12px;
+}
+
+.beso-face-icon {
+  font-size: 22px;
+  filter: drop-shadow(0 0 8px ${lighting.glowColor});
+}
+
+.beso-octa-floor {
+  width: ${Math.round(translateDist * 2.2)}px;
+  height: 28px;
+  margin-top: 45px;
+  border-radius: 50%;
+  background: radial-gradient(ellipse, ${hexToRgba(lighting.glowColor, 0.55)} 0%, transparent 70%);
+  filter: blur(12px);
+}
+
+@keyframes besoOctaSpin {
+  0% { transform: rotateX(-${media.carouselTiltAngle}deg) rotateY(0deg); }
+  100% { transform: rotateX(-${media.carouselTiltAngle}deg) rotateY(360deg); }
+}`.trim();
+
+    const html = `<div class="beso-octa-scene">
+  <div class="beso-octa-stage">
+    ${faceContents}
+  </div>
+  <div class="beso-octa-floor"></div>
+</div>`;
+
+    return { html, css };
+  }
+
+  // 4. CAROUSEL 3D SPHERE (3D Orbital Shimmer)
+  if (elementId === "carousel-3d-sphere") {
+    const defaultGradients = [
+      "linear-gradient(135deg, #0d3b2e, #10b981)",
+      "linear-gradient(135deg, #16157f, #3b82f6)",
+      "linear-gradient(135deg, #4a154b, #9333ea)",
+      "linear-gradient(135deg, #7c2d12, #ea580c)",
+      "linear-gradient(135deg, #134e4a, #14b8a6)",
+      "linear-gradient(135deg, #312e81, #6366f1)",
+    ];
+
+    const satellites = [0, 1, 2, 3, 4, 5].map((idx) => {
+      const img = media.carouselImages[idx];
+      const bg = defaultGradients[idx];
+      const angle = idx * 60;
+      return `<div class="beso-sphere-sat" style="--sat-angle: ${angle}deg;">
+        <div class="beso-sphere-sat-inner" style="${img ? `background-image: url('${img}'); background-size: cover;` : `background: ${bg};`}">
+          ${!img ? `<span>🪐</span>` : ""}
+        </div>
+      </div>`;
+    }).join("\n        ");
+
+    const css = `.beso-sphere-scene {
+  perspective: ${media.carouselPerspective}px;
+  width: 100%;
+  min-height: 420px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+  animation: besoEntrance-${animations.entranceAnimation} 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.beso-sphere-center {
+  position: relative;
+  width: 110px;
+  height: 110px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #fff8e7 0%, ${lighting.glowColor} 40%, #0d3b2e 85%, #05140e 100%);
+  box-shadow: 0 0 50px ${hexToRgba(lighting.glowColor, 0.8)}, inset 0 0 20px rgba(255,255,255,0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  animation: besoPulseCore 3s ease-in-out infinite alternate;
+}
+
+.beso-sphere-rings {
+  position: absolute;
+  width: 340px;
+  height: 340px;
+  border-radius: 50%;
+  border: 1.5px dashed ${hexToRgba(lighting.glowColor, 0.5)};
+  transform-style: preserve-3d;
+  animation: besoRingOrbit ${media.carouselRotationSpeed}s linear infinite;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+${media.carouselHoverPause ? `.beso-sphere-scene:hover .beso-sphere-rings,
+.beso-sphere-scene:hover .beso-sphere-sat-inner {
+  animation-play-state: paused;
+}` : ""}
+
+.beso-sphere-sat {
+  position: absolute;
+  width: 54px;
+  height: 54px;
+  transform: rotate(var(--sat-angle)) translateX(170px);
+}
+
+.beso-sphere-sat-inner {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  border: 2px solid ${lighting.glowColor};
+  box-shadow: 0 0 15px ${hexToRgba(lighting.glowColor, 0.7)}, 0 8px 16px rgba(0,0,0,0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 18px;
+  animation: besoCounterRotate ${media.carouselRotationSpeed}s linear infinite;
+  overflow: hidden;
+}
+
+@keyframes besoRingOrbit {
+  0% { transform: rotateX(${media.carouselTiltAngle || 65}deg) rotateZ(0deg); }
+  100% { transform: rotateX(${media.carouselTiltAngle || 65}deg) rotateZ(360deg); }
+}
+
+@keyframes besoCounterRotate {
+  0% { transform: rotateZ(0deg); }
+  100% { transform: rotateZ(-360deg); }
+}
+
+@keyframes besoPulseCore {
+  0% { transform: scale(0.95); box-shadow: 0 0 30px ${hexToRgba(lighting.glowColor, 0.5)}; }
+  100% { transform: scale(1.05); box-shadow: 0 0 70px ${hexToRgba(lighting.glowColor, 0.95)}; }
+}`.trim();
+
+    const html = `<div class="beso-sphere-scene">
+  <div class="beso-sphere-rings">
+    ${satellites}
+  </div>
+  <div class="beso-sphere-center">
+    <span style="font-size: 32px;">✨</span>
+  </div>
+</div>`;
+
+    return { html, css };
+  }
+
+  // 5. MARQUEE ELLIPTICAL TRACK (360° Path)
+  if (elementId === "marquee-elliptical-track") {
+    const rawItems = (media.marqueeItemsTop || "")
+      .split(",")
+      .map(s => s.trim())
+      .filter(Boolean);
+
+    const items = rawItems.length > 0
+      ? rawItems.map((text, i) => {
+          const parts = text.split(" ");
+          const icon = parts[0] || "✨";
+          const label = parts.slice(1).join(" ") || text;
+          return { text: label, icon, bg: lighting.colorStop1 };
+        })
+      : [
+          { text: "خامات زجاجية", icon: "💎", bg: "#0d3b2e" },
+          { text: "نيون سايبر", icon: "⚡", bg: "#16157f" },
+          { text: "عاجي فاخر", icon: "🏛️", bg: "#4a154b" },
+          { text: "معدن مصقول", icon: "⚙️", bg: "#7c2d12" },
+          { text: "كريستال كوانتم", icon: "🔮", bg: "#134e4a" },
+          { text: "ذهب ملكي", icon: "👑", bg: "#312e81" },
+        ];
+
+    const radiusX = media.marqueeRadiusX || 160;
+    const radiusY = media.marqueeRadiusY || 160;
+    const trackWidth = radiusX * 2;
+    const trackHeight = radiusY * 2;
+    const iconSize = media.marqueeIconSize || 18;
+
+    const trackItems = items.map((it, idx) => {
+      const angle = (idx * 360) / items.length;
+      return `<div class="beso-ellipse-node" style="--node-deg: ${angle}deg;">
+        <span class="beso-node-icon">${it.icon}</span>
+        <span class="beso-node-text">${escapeHtml(it.text)}</span>
+      </div>`;
+    }).join("\n      ");
+
+    const css = `.beso-ellipse-marquee-wrap {
+  width: 100%;
+  max-width: ${dimensions.width}px;
+  min-height: ${Math.max(380, trackHeight + 60)}px;
+  perspective: ${media.carouselPerspective || 1100}px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  animation: besoEntrance-${animations.entranceAnimation} 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.beso-ellipse-track {
+  position: relative;
+  width: ${trackWidth}px;
+  height: ${trackHeight}px;
+  transform-style: preserve-3d;
+  animation: besoEllipseSpin ${media.marqueeSpeed}s linear infinite;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.beso-ellipse-marquee-wrap:hover .beso-ellipse-track,
+.beso-ellipse-marquee-wrap:hover .beso-ellipse-node {
+  animation-play-state: paused;
+}
+
+.beso-ellipse-node {
+  position: absolute;
+  transform: rotate(var(--node-deg)) translateX(${radiusX}px) rotate(calc(-1 * var(--node-deg)));
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border-radius: 99px;
+  background: linear-gradient(145deg, rgba(14, 38, 27, 0.95), rgba(4, 14, 10, 0.98));
+  border: 1px solid ${lighting.glowColor};
+  box-shadow: 0 8px 24px rgba(0,0,0,0.6), 0 0 15px ${hexToRgba(lighting.glowColor, 0.4)};
+  color: ${typography.titleColor || "#fff8e7"};
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+  animation: besoNodeCounter ${media.marqueeSpeed}s linear infinite;
+}
+
+.beso-node-icon { font-size: ${iconSize}px; }
+
+@keyframes besoEllipseSpin {
+  0% { transform: rotateX(${media.carouselTiltAngle || 55}deg) rotateZ(0deg); }
+  100% { transform: rotateX(${media.carouselTiltAngle || 55}deg) rotateZ(360deg); }
+}
+
+@keyframes besoNodeCounter {
+  0% { transform: rotate(var(--node-deg)) translateX(${radiusX}px) rotate(calc(-1 * var(--node-deg))) rotateZ(0deg); }
+  100% { transform: rotate(var(--node-deg)) translateX(${radiusX}px) rotate(calc(-1 * var(--node-deg))) rotateZ(-360deg); }
+}`.trim();
+
+    const html = `<div class="beso-ellipse-marquee-wrap">
+  <div class="beso-ellipse-track">
+    ${trackItems}
+  </div>
+</div>`;
+
+    return { html, css };
+  }
+
+  // 6. MARQUEE DUAL OPPOSITE (Dual Opposite Kinetic Marquee)
+  if (elementId === "marquee-dual-opposite") {
+    const parseList = (str, fallback) => {
+      const items = (str || "")
+        .split(",")
+        .map(s => s.trim())
+        .filter(Boolean);
+      return items.length > 0 ? items : fallback;
+    };
+
+    const listA = parseList(media.marqueeItemsTop, ["💎 Glassmorphism", "👑 Royal Gold", "⚡ Cyber Neon", "🏛️ Soft Ivory", "⚙️ Brushed Metal", "🌌 Cosmic Orbit"]);
+    const listB = parseList(media.marqueeItemsBottom, ["🔥 Hot Embers", "🌧️ Cyber Rain", "🔮 Quantum Orbs", "📐 Figma Frame", "🛍️ 3D Tote", "🛒 Kinetic Cart"]);
+
+    const renderTape = (items) => [...items, ...items].map((t) => `
+      <div class="beso-tape-pill">
+        <span class="beso-pill-dot"></span>
+        <span>${escapeHtml(t)}</span>
+      </div>
+    `).join("");
+
+    const dirTop = media.marqueeInvertDirection ? "besoScrollRight" : "besoScrollLeft";
+    const dirBottom = media.marqueeInvertDirection ? "besoScrollLeft" : "besoScrollRight";
+
+    const css = `.beso-dual-marquee-container {
+  width: 100%;
+  max-width: ${dimensions.width}px;
+  padding: 24px 12px;
+  border-radius: ${dimensions.borderRadius}px;
+  ${surfaceCSSBlock.trim()}
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  box-sizing: border-box;
+  animation: besoEntrance-${animations.entranceAnimation} 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.beso-dual-marquee-container:hover .beso-marquee-track {
+  animation-play-state: paused;
+}
+
+.beso-marquee-row {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  mask-image: linear-gradient(to right, transparent, black 12%, black 88%, transparent);
+}
+
+.beso-marquee-track {
+  display: flex;
+  width: max-content;
+  gap: 12px;
+}
+
+.beso-track-left {
+  animation: ${dirTop} ${media.marqueeSpeed}s linear infinite;
+}
+
+.beso-track-right {
+  animation: ${dirBottom} ${media.marqueeSpeed}s linear infinite;
+}
+
+.beso-tape-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 18px;
+  border-radius: 99px;
+  background: rgba(4, 18, 12, 0.85);
+  border: 1px solid ${lighting.glowColor};
+  box-shadow: 0 4px 14px rgba(0,0,0,0.45), 0 0 10px ${hexToRgba(lighting.glowColor, 0.3)};
+  color: ${typography.titleColor || "#fff8e7"};
+  font-size: ${media.marqueeIconSize ? Math.min(14, media.marqueeIconSize) : 12}px;
+  font-weight: 700;
+  white-space: nowrap;
+  transition: transform 0.2s, background 0.2s;
+}
+
+.beso-tape-pill:hover {
+  transform: scale(1.05);
+  background: ${lighting.colorStop1};
+}
+
+.beso-pill-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: ${lighting.glowColor};
+  box-shadow: 0 0 8px ${lighting.glowColor};
+}
+
+@keyframes besoScrollLeft {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+@keyframes besoScrollRight {
+  0% { transform: translateX(-50%); }
+  100% { transform: translateX(0); }
+}`.trim();
+
+    const html = `<div class="beso-dual-marquee-container">
+  <div class="beso-marquee-row">
+    <div class="beso-marquee-track beso-track-left">
+      ${renderTape(listA)}
+    </div>
+  </div>
+  <div class="beso-marquee-row">
+    <div class="beso-marquee-track beso-track-right">
+      ${renderTape(listB)}
+    </div>
+  </div>
+</div>`;
+
+    return { html, css };
+  }
+
+  // 7. BRAND IDENTITY STYLE GUIDE CARD (Design System Card)
+  if (elementId === "brand-identity-card") {
+    const logoW = media.logoWidth || 40;
+    const logoH = media.logoHeight || 40;
+    const fontBase = media.brandFontBase || 16;
+    const customLogoUrl = media.logoUrl || "";
+    const textAlign = typography.textAlign || typography.titleAlign || "right";
+    const fontFamily = typography.fontFamily || typography.titleFontFamily || "inherit";
+
+    const titleShadowCSS = typography.titleShadowDepth > 0
+      ? `text-shadow: 0px ${typography.titleShadowDepth}px ${typography.titleShadowBlur}px ${typography.titleShadowColor};`
+      : "";
+    const descShadowCSS = typography.descShadowDepth > 0
+      ? `text-shadow: 0px ${typography.descShadowDepth}px ${typography.descShadowBlur}px ${typography.descShadowColor};`
+      : "";
+
+    const css = `.beso-brand-guide-card {
+  width: 100%;
+  max-width: ${dimensions.width}px;
+  padding: ${dimensions.padding}px;
+  border-radius: ${dimensions.borderRadius}px;
+  ${surfaceCSSBlock.trim()}
+  box-sizing: border-box;
+  font-family: ${fontFamily};
+  text-align: ${textAlign};
+  color: ${typography.descColor || "#eae5d9"};
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  animation: besoEntrance-${animations.entranceAnimation} 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.beso-brand-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid rgba(212, 175, 55, 0.25);
+  padding-bottom: 16px;
+  text-align: ${textAlign};
+}
+
+.beso-brand-logo-wrap, .brand-logo-symbol, .beso-brand-logo-symbol {
+  width: ${logoW}px;
+  height: ${logoH}px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, ${lighting.glowColor} 0%, ${lighting.colorStop1} 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: ${Math.round(Math.min(logoW, logoH) * 0.45)}px;
+  box-shadow: 0 0 20px ${hexToRgba(lighting.glowColor, 0.4)};
+  color: ${typography.titleColor || "#fff8e7"};
+  font-weight: 800;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.beso-brand-logo-wrap img, .brand-logo-symbol img, .beso-brand-logo-symbol img {
+  width: 100%;
+  height: 100%;
+  object-fit: ${media.logoObjectFit || "contain"};
+  filter: drop-shadow(0 0 ${media.logoGlowSpread || 10}px ${media.logoGlowColor || lighting.glowColor});
+}
+
+.beso-brand-title {
+  margin: 0;
+  font-family: ${typography.titleFontFamily || fontFamily};
+  font-size: ${typography.titleSize}px;
+  font-weight: ${typography.titleWeight || 800};
+  font-style: ${typography.titleItalic ? "italic" : "normal"};
+  text-align: ${typography.titleAlign || textAlign};
+  color: ${typography.titleColor || "#fff8e7"};
+  ${titleShadowCSS}
+}
+
+.beso-brand-subtitle {
+  margin: 4px 0 0 0;
+  font-family: ${typography.descFontFamily || fontFamily};
+  font-size: ${typography.descSize || 12}px;
+  font-weight: ${typography.descWeight || 400};
+  font-style: ${typography.descItalic ? "italic" : "normal"};
+  text-align: ${typography.descAlign || textAlign};
+  color: ${typography.descColor || "#aebbb4"};
+  ${descShadowCSS}
+}
+
+.beso-brand-section-title {
+  font-family: ${fontFamily};
+  font-size: 12px;
+  font-weight: 700;
+  color: ${typography.titleColor || "#fff8e7"};
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  text-align: ${textAlign};
+}
+
+.beso-materials-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.beso-mat-pill {
+  padding: 8px 4px;
+  border-radius: 10px;
+  text-align: center;
+  font-size: 11px;
+  font-weight: 600;
+  font-family: ${fontFamily};
+  border: 1px solid rgba(255,255,255,0.15);
+}
+
+.beso-mat-glass { background: rgba(255,255,255,0.1); backdrop-filter: blur(8px); }
+.beso-mat-dark { background: #071711; border-color: rgba(212,175,55,0.3); }
+.beso-mat-metal { background: linear-gradient(145deg, #2b3330, #141c18); }
+.beso-mat-classic { background: #0d3b2e; }
+.beso-mat-neon { background: #021a12; border-color: #10b981; box-shadow: 0 0 10px rgba(16,185,129,0.4); }
+.beso-mat-ivory { background: #f5eee1; color: #2b1f09; }
+
+.beso-typo-hierarchy {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-family: ${fontFamily};
+}
+
+.beso-typo-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  padding: 4px 8px;
+  border-radius: 8px;
+  background: rgba(0,0,0,0.25);
+  font-size: 11px;
+  font-family: ${fontFamily};
+}
+
+.beso-color-swatches {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 6px;
+}
+
+.beso-color-swatch {
+  height: 38px;
+  border-radius: 8px;
+  border: 1px solid rgba(255,255,255,0.2);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding-bottom: 2px;
+  font-size: 8px;
+  font-family: monospace;
+  font-weight: 700;
+  color: #fff;
+  text-shadow: 0 1px 2px #000;
+}
+
+.beso-geometry-indicators {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+  font-family: ${fontFamily};
+}
+
+.beso-geom-box {
+  padding: 8px 4px;
+  border-radius: 10px;
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.beso-geom-val {
+  font-family: monospace;
+  font-weight: 700;
+  font-size: 11px;
+  color: ${typography.titleColor || "#fff8e7"};
+}
+
+.beso-geom-lbl {
+  font-size: 9px;
+  color: ${typography.descColor || "#a8b7ad"};
+  font-family: ${fontFamily};
+}`.trim();
+
+    const html = `<div class="beso-brand-guide-card">
+  <div class="beso-brand-header">
+    <div>
+      <h2 class="beso-brand-title">${escapeHtml(typography.titleText || "Beso UI Design System")}</h2>
+      <p class="beso-brand-subtitle">${escapeHtml(typography.descText || "دليل الهوية البصرية ومصفوفة الخامات المادية")}</p>
+    </div>
+    <div class="beso-brand-logo-wrap brand-logo-symbol beso-brand-logo-symbol">
+      ${customLogoUrl ? `<img src="${customLogoUrl}" alt="Brand Logo" />` : "B"}
+    </div>
+  </div>
+
+  <div>
+    <div class="beso-brand-section-title"><span>💎</span> مصفوفة الخامات المادية الـ 6</div>
+    <div class="beso-materials-grid">
+      <div class="beso-mat-pill beso-mat-glass">زجاجي Glass</div>
+      <div class="beso-mat-pill beso-mat-dark">داكن Dark</div>
+      <div class="beso-mat-pill beso-mat-metal">معدني Metal</div>
+      <div class="beso-mat-pill beso-mat-classic">كلاسيك Classic</div>
+      <div class="beso-mat-pill beso-mat-neon">نيون Neon</div>
+      <div class="beso-mat-pill beso-mat-ivory">عاجي Ivory</div>
+    </div>
+  </div>
+
+  <div>
+    <div class="beso-brand-section-title"><span>✍️</span> الهيكل الطباعي (Typography Hierarchy)</div>
+    <div class="beso-typo-hierarchy">
+      <div class="beso-typo-row">
+        <span style="font-size: ${fontBase * 1.75}px; font-weight: 800; color: ${typography.titleColor};">Heading 1</span>
+        <span style="color: ${typography.titleColor}; font-family: monospace;">${fontBase * 1.75}px / 1.75rem</span>
+      </div>
+      <div class="beso-typo-row">
+        <span style="font-size: ${fontBase * 1.35}px; font-weight: 700; color: ${typography.descColor};">Heading 2</span>
+        <span style="color: ${typography.descColor}; font-family: monospace;">${fontBase * 1.35}px / 1.35rem</span>
+      </div>
+      <div class="beso-typo-row">
+        <span style="font-size: ${fontBase}px; color: ${typography.descColor};">Body Regular</span>
+        <span style="color: ${typography.descColor}; font-family: monospace;">${fontBase}px / 1.0rem</span>
+      </div>
+    </div>
+  </div>
+
+  <div>
+    <div class="beso-brand-section-title"><span>🎨</span> لوحة الألوان الرئيسية الديناميكية (Color Swatches)</div>
+    <div class="beso-color-swatches">
+      <div class="beso-color-swatch" style="background: ${lighting.colorStop1};">${lighting.colorStop1.toUpperCase().slice(0, 5)}</div>
+      <div class="beso-color-swatch" style="background: ${lighting.colorStop2};">${lighting.colorStop2.toUpperCase().slice(0, 5)}</div>
+      <div class="beso-color-swatch" style="background: ${lighting.colorStop3};">${lighting.colorStop3.toUpperCase().slice(0, 5)}</div>
+      <div class="beso-color-swatch" style="background: ${lighting.glowColor};">${lighting.glowColor.toUpperCase().slice(0, 5)}</div>
+      <div class="beso-color-swatch" style="background: ${dimensions.borderColor};">${dimensions.borderColor.toUpperCase().slice(0, 5)}</div>
+      <div class="beso-color-swatch" style="background: ${typography.titleColor};">${typography.titleColor.toUpperCase().slice(0, 5)}</div>
+    </div>
+  </div>
+
+  <div>
+    <div class="beso-brand-section-title"><span>📐</span> مؤشرات الهندسة والسطح المادي (Geometry & Physics)</div>
+    <div class="beso-geometry-indicators">
+      <div class="beso-geom-box">
+        <span class="beso-geom-val">${Math.round(dimensions.surfaceOpacity * 100)}%</span>
+        <span class="beso-geom-lbl">الشفافية</span>
+      </div>
+      <div class="beso-geom-box">
+        <span class="beso-geom-val">${dimensions.borderWidth}px</span>
+        <span class="beso-geom-lbl">الإطار</span>
+      </div>
+      <div class="beso-geom-box">
+        <span class="beso-geom-val">${lighting.bevelDepth}px</span>
+        <span class="beso-geom-lbl">الشطف</span>
+      </div>
+      <div class="beso-geom-box">
+        <span class="beso-geom-val">${lighting.glowSpread}px</span>
+        <span class="beso-geom-lbl">التوهج</span>
+      </div>
+    </div>
+  </div>
+</div>`;
+
+    return { html, css };
+  }
 
   // 0. PREMIUM 1: CYBER 3D TILT CARD (Pure CSS Tracker Grid)
   if (elementId === "cyber-card") {
@@ -1367,7 +2595,7 @@ ${entranceKeyframes}`.trim();
     return { html, css };
   }
 
-  // 0. PREMIUM 9: FIGMA CANVAS VECTOR FRAME (Fully Dynamic Responsive Scaling & Locked Cursor)
+  // 0. PREMIUM 9: FIGMA CANVAS VECTOR FRAME (Dynamic Responsive Scaling, Fixed Centered Content & Autonomous Moving Cursor)
   if (elementId === "figma-vector-frame") {
     const w = dimensions.width || 420;
     const h = dimensions.height === "auto" ? 260 : (typeof dimensions.height === "number" ? dimensions.height : parseInt(dimensions.height, 10) || 260);
@@ -1376,7 +2604,6 @@ ${entranceKeyframes}`.trim();
     const titleColor = typography.titleColor || "#FFFFFF";
     const descColor = typography.descColor || "#FFFFFF";
     const strokeColor = lighting.glowColor || "#2563EB";
-    const badgeWidth = Math.max(110, descText.length * 8.5 + 20);
 
     const css = `.beso-figma-container {
   width: ${w}px;
@@ -1397,27 +2624,69 @@ ${entranceKeyframes}`.trim();
 }
 
 .figma-svg-canvas {
+  position: absolute;
+  inset: 0;
   width: 100%;
   height: 100%;
+  pointer-events: none;
   overflow: visible;
 }
 
-.figma-unified-cursor {
-  animation: figmaUnifiedMove 6s cubic-bezier(0.4, 0, 0.2, 1) infinite alternate;
+.figma-fixed-badge {
+  filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.4));
+}
+
+.figma-moving-cursor {
+  /* Autonomous moving cursor keyframe - decoupled from text */
+  animation: figmaCursorMove 6s cubic-bezier(0.4, 0, 0.2, 1) infinite alternate;
+  filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.5));
+}
+
+.figma-card-content {
+  position: relative;
+  z-index: 5;
+  width: 100%;
+  max-width: 90%;
+  padding: 12px 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: ${typography.textAlign || "center"};
+  box-sizing: border-box;
+  word-wrap: break-word;
+  word-break: break-word;
+  overflow-wrap: break-word;
+}
+
+.figma-title-text {
+  margin: 0;
+  width: 100%;
+  max-width: 90%;
+  font-size: ${typography.titleSize || 20}px;
+  font-weight: 700;
+  color: ${titleColor};
+  line-height: 1.4;
+  word-wrap: break-word;
+  word-break: break-word;
+  overflow-wrap: break-word;
+  ${textShadowCSS}
 }
 
 .beso-figma-container:hover {
   box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6), 0 0 35px ${hexToRgba(strokeColor, 0.45)};
 }
 
-@keyframes figmaUnifiedMove {
-  0% { transform: translate(20px, 20px); }
-  40% { transform: translate(${Math.max(20, w - badgeWidth - 40)}px, ${Math.max(20, h - 60)}px); }
-  50% { transform: translate(${Math.max(20, w - badgeWidth - 40)}px, ${Math.max(20, h - 60)}px) scale(0.92); }
-  60% { transform: translate(${Math.max(20, w - badgeWidth - 40)}px, ${Math.max(20, h - 60)}px) scale(1); }
-  100% { transform: translate(${Math.floor(w / 2)}px, 40px); }
+@keyframes figmaCursorMove {
+  0% { transform: translate(30px, 40px); }
+  25% { transform: translate(${Math.max(40, w - 80)}px, 50px); }
+  50% { transform: translate(${Math.max(40, w - 90)}px, ${Math.max(40, h - 70)}px) scale(0.9); }
+  75% { transform: translate(50px, ${Math.max(40, h - 60)}px); }
+  100% { transform: translate(${Math.floor(w / 2)}px, ${Math.floor(h / 2)}px); }
 }
 ${entranceKeyframes}`.trim();
+
+    const badgeWidth = Math.max(110, descText.length * 8.5 + 20);
 
     const html = `<div class="beso-figma-container">
   <svg class="figma-svg-canvas" viewBox="0 0 ${w} ${h}">
@@ -1430,21 +2699,22 @@ ${entranceKeyframes}`.trim();
     <rect x="5" y="${Math.max(5, h - 15)}" width="10" height="10" stroke="${strokeColor}" stroke-width="2" fill="#FFFFFF" />
     <rect x="${Math.max(5, w - 15)}" y="${Math.max(5, h - 15)}" width="10" height="10" stroke="${strokeColor}" stroke-width="2" fill="#FFFFFF" />
 
-    <!-- Center Dynamic Title -->
-    <text x="50%" y="50%" text-anchor="middle" dominant-baseline="middle" fill="${titleColor}" font-size="${typography.titleSize || 20}px" font-weight="bold">${titleText}</text>
+    <!-- FIXED LABEL BADGE ATTACHED DIRECTLY TO THE FRAME -->
+    <g class="figma-fixed-badge" transform="translate(18, 18)">
+      <rect x="0" y="0" width="${badgeWidth}" height="24" fill="${strokeColor}" rx="4" />
+      <text x="${badgeWidth / 2}" y="16" fill="${descColor}" font-size="${typography.descSize || 12}px" font-weight="600" text-anchor="middle">${descText}</text>
+    </g>
 
-    <!-- UNIFIED CURSOR GROUP (Arrow + Badge Locked Together) -->
-    <g class="figma-unified-cursor">
-      <!-- Cursor Pointer Arrow -->
+    <!-- AUTONOMOUS MOVING CURSOR (INDEPENDENT KEYFRAME) -->
+    <g class="figma-moving-cursor">
       <path stroke="#FFFFFF" stroke-width="1.5" fill="${strokeColor}" d="M 0 0 L 0 22 L 6 16 L 15 16 Z" />
-      
-      <!-- Locked Badge with Dynamic Description -->
-      <g transform="translate(10, 14)">
-        <rect x="0" y="0" width="${badgeWidth}" height="24" fill="${strokeColor}" rx="4" />
-        <text x="${badgeWidth / 2}" y="16" fill="${descColor}" font-size="${typography.descSize || 12}px" font-weight="600" text-anchor="middle">${descText}</text>
-      </g>
     </g>
   </svg>
+
+  <!-- CENTERED TEXT CONTAINER WITH AUTO-WRAP & SAFE PADDING -->
+  <div class="figma-card-content">
+    <h3 class="figma-title-text">${titleText}</h3>
+  </div>
 </div>`;
 
     return { html, css };
@@ -1670,7 +2940,7 @@ ${entranceKeyframes}`.trim();
   display: flex;
   align-items: center;
   justify-content: center;
-  perspective: 900px;
+  perspective: ${media.carouselPerspective || 900}px;
   transform-style: preserve-3d;
   box-sizing: border-box;
   animation: besoEntrance-${animations.entranceAnimation} 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
@@ -1685,7 +2955,7 @@ ${entranceKeyframes}`.trim();
   border-top-color: ${lighting.glowColor};
   border-bottom-color: #00ffcc;
   box-shadow: 0 0 20px ${hexToRgba(lighting.glowColor, 0.5)};
-  animation: holoSpin 6s linear infinite;
+  animation: holoSpin ${media.carouselRotationSpeed ? Math.round(media.carouselRotationSpeed * 0.4) : 6}s linear infinite;
   transform-style: preserve-3d;
   pointer-events: none;
 }
@@ -1695,7 +2965,7 @@ ${entranceKeyframes}`.trim();
   height: 135%;
   border-top-color: #ff3366;
   border-bottom-color: ${lighting.glowColor};
-  animation: holoSpinReverse 8s linear infinite;
+  animation: holoSpinReverse ${media.carouselRotationSpeed ? Math.round(media.carouselRotationSpeed * 0.5) : 8}s linear infinite;
 }
 
 .beso-holo-ring-container .holo-card-core {
@@ -1710,7 +2980,7 @@ ${entranceKeyframes}`.trim();
   border: 1px solid rgba(255, 255, 255, 0.2);
   box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.25);
   text-align: ${typography.textAlign};
-  transform: rotateX(5deg);
+  transform: rotateX(${media.carouselTiltAngle || 5}deg);
   transition: transform 0.4s ease, box-shadow 0.4s ease;
 }
 
@@ -3854,6 +5124,24 @@ ${entranceKeyframes}`.trim();
       };
     }
 
+    if (particleType === "particles-cyber-rain") {
+      return {
+        html: `<div class="beso-particle-layer cyber-rain-layer"><span class="drop dr1"></span><span class="drop dr2"></span><span class="drop dr3"></span><span class="drop dr4"></span><span class="drop dr5"></span></div>`,
+        css: `.beso-particle-layer { position: absolute !important; inset: 0 !important; pointer-events: none !important; z-index: 100 !important; overflow: hidden !important; }
+.drop { position: absolute !important; width: 3px !important; height: 35px !important; background: linear-gradient(to bottom, transparent, ${color}) !important; box-shadow: 0 0 12px ${color} !important; animation: rainDrop 2.5s linear infinite !important; }
+.dr1 { left: 10%; animation-delay: 0s; }
+.dr2 { left: 30%; animation-delay: 0.9s; }
+.dr3 { left: 52%; animation-delay: 1.6s; }
+.dr4 { left: 74%; animation-delay: 0.4s; }
+.dr5 { left: 90%; animation-delay: 1.2s; }
+@keyframes rainDrop {
+  0% { transform: translateY(-50px); opacity: 0; }
+  30% { opacity: 1; }
+  100% { transform: translateY(480px); opacity: 0; }
+}`
+      };
+    }
+
     return { html: "", css: "" };
   }
 
@@ -3861,6 +5149,470 @@ ${entranceKeyframes}`.trim();
   const particleResult = getParticleOverlayCode(activeParticleType, typography.titleColor || "#00ffea");
   const particleHtml = particleResult.html;
   const particleCss = particleResult.css;
+
+  const customHeroBgLayerHtml = media.heroBgImage
+    ? `<div class="beso-hero-custom-bg"></div>`
+    : "";
+
+  const customHeroBgLayerCss = media.heroBgImage
+    ? `
+.beso-hero-custom-bg {
+  position: absolute;
+  inset: 0;
+  background-image: url('${media.heroBgImage}');
+  background-size: ${media.heroBgObjectFit || media.objectFit || "cover"};
+  background-position: center;
+  background-repeat: no-repeat;
+  opacity: ${media.heroBgOverlayOpacity};
+  filter: ${media.heroBgBlur > 0 ? `blur(${media.heroBgBlur}px)` : "none"};
+  pointer-events: none;
+  z-index: 1;
+}
+.beso-hero-custom-bg::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: ${media.heroBgTint ? hexToRgba(media.heroBgTint, 0.35) : "transparent"};
+  pointer-events: none;
+}
+.beso-hero-bg-img {
+  width: ${media.heroBgWidth ? media.heroBgWidth + "px" : "100%"};
+  height: ${media.heroBgHeight ? media.heroBgHeight + "px" : "100%"};
+  object-fit: ${media.heroBgObjectFit || media.objectFit || "cover"};
+  opacity: ${media.heroBgOverlayOpacity};
+  filter: ${media.heroBgBlur > 0 ? `blur(${media.heroBgBlur}px)` : "none"};
+}`
+    : "";
+
+  // BATCH 18: PROPOSAL 1 - SPLIT HERO BANNER (DUAL COLUMN - SYNCHRONIZED SLIDER)
+  if (elementId === "split-hero-banner") {
+    const brandLogo = escapeHtml(media.splitHeroBrand || "H&M");
+    const discountBadge = escapeHtml(media.splitHeroDiscountBadge || "خصم");
+    const discountTitle = escapeHtml(media.splitHeroDiscountTitle || "حتى 70%");
+    const subtext = escapeHtml(media.splitHeroSubtext || "عروض منتصف الموسم لفترة محدودة");
+    const rightImages = media.splitHeroRightImages || [
+      "https://images.unsplash.com/photo-1483985988355-763728e1935b?q=80&w=800&auto=format&fit=crop",
+      "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=800&auto=format&fit=crop",
+      "https://images.unsplash.com/photo-1529139574466-a303027c1d8b?q=80&w=800&auto=format&fit=crop"
+    ];
+    const leftImages = media.splitHeroLeftImages || [
+      "https://images.unsplash.com/photo-1509631179647-0177331693ae?q=80&w=800&auto=format&fit=crop",
+      "https://images.unsplash.com/photo-1490481651871-ab68de25d43d?q=80&w=800&auto=format&fit=crop",
+      "https://images.unsplash.com/photo-1469334031218-e382a71b716b?q=80&w=800&auto=format&fit=crop"
+    ];
+
+    const rightSlidesHtml = rightImages.map((img, i) => `    <div class="slide-image${i === 0 ? " active" : ""}" style="background-image: url('${img}');"></div>`).join("\n");
+    const leftSlidesHtml = leftImages.map((img, i) => `    <div class="slide-image${i === 0 ? " active" : ""}" style="background-image: url('${img}');"></div>`).join("\n");
+
+    const html = `<div class="split-hero-banner">
+  <!-- العمود الأيمن (3 صور تتناوب) -->
+  <div class="banner-column col-right">
+${rightSlidesHtml}
+  </div>
+
+  <!-- محتوى الوسط الموحد (العنوان والنص التفصيلي) -->
+  <div class="banner-center-content">
+    <h1 class="brand-logo">${brandLogo}</h1>
+    <div class="discount-badge">${discountBadge}</div>
+    <div class="discount-title">${discountTitle}</div>
+    <p class="banner-subtext">${subtext}</p>
+  </div>
+
+  <!-- العمود الأيسر (3 صور تتناوب) -->
+  <div class="banner-column col-left">
+${leftSlidesHtml}
+  </div>
+</div>`;
+
+    const bannerWidth = typeof dimensions.width === "number" ? dimensions.width : (Number(dimensions.width) || 1100);
+    const bannerHeight = typeof dimensions.height === "number" ? dimensions.height : (Number(dimensions.height) || 480);
+    const overlayBlur = media.splitHeroOverlayBlur ?? 8;
+    const overlayBg = media.splitHeroOverlayBg || "rgba(255, 255, 255, 0.88)";
+    const brandSize = media.splitHeroBrandSize || 54;
+    const brandColor = media.splitHeroBrandColor || "#e50010";
+    const brandWeight = media.splitHeroBrandWeight || 900;
+    const badgeSize = media.splitHeroBadgeSize || 22;
+    const badgeColor = media.splitHeroBadgeColor || "#e50010";
+    const titleSize = media.splitHeroTitleSize || 58;
+    const titleColorVal = media.splitHeroTitleColor || "#e50010";
+    const subtextSize = media.splitHeroSubtextSize || 15;
+    const subtextColor = media.splitHeroSubtextColor || "#333333";
+    const align = media.splitHeroAlign || "center";
+
+    const css = `/* ============================================================
+   SPLIT HERO BANNER (DUAL COLUMN - SYNCHRONIZED SLIDER)
+   ============================================================ */
+
+.split-hero-banner {
+  position: relative;
+  width: 100%;
+  max-width: ${bannerWidth}px;
+  height: ${bannerHeight}px;
+  min-height: 380px;
+  margin: 0 auto;
+  display: flex;
+  direction: rtl;
+  overflow: hidden;
+  border-radius: ${dimensions.borderRadius}px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+  background-color: #f9f9f9;
+  animation: besoEntrance-${animations.entranceAnimation} 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.banner-column {
+  position: relative;
+  width: 50%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.slide-image {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  background-size: cover;
+  background-position: center top;
+  opacity: 0;
+  transform: scale(1.05);
+  transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1), 
+              transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.slide-image.active {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.banner-center-content {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 20;
+  text-align: ${align};
+  pointer-events: none;
+  background: ${overlayBg};
+  backdrop-filter: ${overlayBlur > 0 ? `blur(${overlayBlur}px)` : "none"};
+  -webkit-backdrop-filter: ${overlayBlur > 0 ? `blur(${overlayBlur}px)` : "none"};
+  padding: 16px 24px;
+  border-radius: 16px;
+  box-shadow: ${overlayBg && overlayBg !== "transparent" ? "0 8px 32px rgba(0, 0, 0, 0.06)" : "none"};
+  min-width: 200px;
+}
+
+.brand-logo {
+  font-family: 'Arial Black', sans-serif;
+  font-size: ${brandSize}px;
+  font-weight: ${brandWeight};
+  color: ${brandColor};
+  margin: 0 0 2px 0;
+  line-height: 1;
+  letter-spacing: -1.5px;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+}
+
+.discount-badge {
+  font-size: ${badgeSize}px;
+  font-weight: 700;
+  color: ${badgeColor};
+  margin-top: 4px;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+}
+
+.discount-title {
+  font-size: ${titleSize}px;
+  font-weight: 900;
+  color: ${titleColorVal};
+  line-height: 1.1;
+  margin-bottom: 6px;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+}
+
+.banner-subtext {
+  font-size: ${subtextSize}px;
+  font-weight: 600;
+  color: ${subtextColor};
+  margin: 0;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+}
+
+@media (max-width: 768px) {
+  .split-hero-banner {
+    height: 380px;
+  }
+  .brand-logo {
+    font-size: 40px;
+  }
+  .discount-title {
+    font-size: 42px;
+  }
+  .banner-center-content {
+    padding: 16px 24px;
+    min-width: 220px;
+  }
+}
+${entranceKeyframes}`.trim();
+
+    return { html, css };
+  }
+
+  // BATCH 18: PROPOSAL 2 - DUAL-TRACK KINETIC HERO CANVAS (hero-kinetic-dual-track)
+  if (elementId === "hero-kinetic-dual-track") {
+    const pillTag = escapeHtml(media.kineticPillTag || "حلول رقمية مخصصة للأعمال");
+    const headline = escapeHtml(media.kineticHeadline || typography.titleText || "نصمم حلولاً رقمية مبتكرة");
+    const highlightWord = escapeHtml(media.kineticHighlightWord || "عــــلامتك");
+    const subtext = escapeHtml(media.kineticSubtext || typography.descText || "واجهات تفاعلية مذهلة بحركات لا نهائية ومؤثرات فيزيائية ملموسة.");
+    const ctaText = escapeHtml(media.kineticCtaText || typography.buttonText || "اكتشف إمكانياتنا ✦");
+    const speed = media.kineticTrackSpeed || 20;
+
+    const topImages = media.kineticTrackTopImages || [
+      "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=600&auto=format&fit=crop",
+      "https://images.unsplash.com/photo-1550745165-9bc0b252726f?q=80&w=600&auto=format&fit=crop",
+      "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?q=80&w=600&auto=format&fit=crop",
+      "https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?q=80&w=600&auto=format&fit=crop"
+    ];
+    const bottomImages = media.kineticTrackBottomImages || [
+      "https://images.unsplash.com/photo-1558655146-d09347e92766?q=80&w=600&auto=format&fit=crop",
+      "https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=600&auto=format&fit=crop",
+      "https://images.unsplash.com/photo-1634017839464-5c339ebe3cb4?q=80&w=600&auto=format&fit=crop",
+      "https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&w=600&auto=format&fit=crop"
+    ];
+
+    const topCards = topImages.map(img => `        <div class="kinetic-track-card" style="background-image: url('${img}');"></div>`).join("\n");
+    const bottomCards = bottomImages.map(img => `        <div class="kinetic-track-card" style="background-image: url('${img}');"></div>`).join("\n");
+
+    const html = `<div class="beso-kinetic-hero-wrapper">
+  <!-- مسار الصور العلوي (متحرك لليسار) -->
+  <div class="kinetic-track-container top-container">
+    <div class="beso-kinetic-track-top">
+${topCards}
+${topCards}
+    </div>
+  </div>
+
+  <!-- مسار الصور السفلي (متحرك لليمين) -->
+  <div class="kinetic-track-container bottom-container">
+    <div class="beso-kinetic-track-bottom">
+${bottomCards}
+${bottomCards}
+    </div>
+  </div>
+
+  <!-- طبقة التعتيم والغموض للتركيز على المحتوى -->
+  <div class="kinetic-hero-overlay"></div>
+
+  <!-- المحتوى المركزي العائم -->
+  <div class="kinetic-hero-content">
+    <div class="hero-pill-badge">
+      <span class="pill-pulse-dot"></span>
+      <span>${pillTag}</span>
+    </div>
+
+    <h1 class="hero-kinetic-title">
+      ${headline}
+      <span class="beso-polygon-highlight">${highlightWord}</span>
+    </h1>
+
+    <p class="hero-kinetic-desc">${subtext}</p>
+
+    <button type="button" class="sparkle-btn" id="kineticHeroCta">
+      <svg class="sparkle-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M12 3v18M3 12h18M5.5 5.5l13 13M18.5 5.5l-13 13"/>
+      </svg>
+      <span>${ctaText}</span>
+      <svg class="sparkle-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M12 2l2.4 7.2L22 12l-7.6 2.8L12 22l-2.4-7.2L2 12l7.6-2.8z"/>
+      </svg>
+    </button>
+  </div>
+</div>`;
+
+    const topAnimation = media.kineticTrackInvert ? "kineticTrackRight" : "kineticTrackLeft";
+    const bottomAnimation = media.kineticTrackInvert ? "kineticTrackLeft" : "kineticTrackRight";
+
+    const css = `.beso-kinetic-hero-wrapper {
+  position: relative;
+  width: 100%;
+  max-width: 1000px;
+  min-height: 520px;
+  margin: 0 auto;
+  overflow: hidden;
+  border-radius: ${dimensions.borderRadius}px;
+  background: #020906;
+  border: 1px solid rgba(212, 175, 55, 0.3);
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.75), inset 0 0 40px rgba(16, 185, 129, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  animation: besoEntrance-${animations.entranceAnimation} 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.kinetic-track-container {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  height: 140px;
+  overflow: hidden;
+  pointer-events: none;
+  opacity: 0.75;
+  filter: blur(0.5px);
+}
+
+.top-container { top: 30px; }
+.bottom-container { bottom: 30px; }
+
+@keyframes kineticTrackLeft {
+  0% { transform: translateX(0%); }
+  100% { transform: translateX(-50%); }
+}
+
+@keyframes kineticTrackRight {
+  0% { transform: translateX(-50%); }
+  100% { transform: translateX(0%); }
+}
+
+.beso-kinetic-track-top {
+  display: flex;
+  width: 200%;
+  gap: 16px;
+  animation: ${topAnimation} ${speed}s linear infinite;
+}
+
+.beso-kinetic-track-bottom {
+  display: flex;
+  width: 200%;
+  gap: 16px;
+  animation: ${bottomAnimation} ${speed}s linear infinite;
+}
+
+.kinetic-track-card {
+  width: 220px;
+  height: 130px;
+  flex-shrink: 0;
+  border-radius: 14px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background-size: cover;
+  background-position: center;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+}
+
+.kinetic-hero-overlay {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at center, rgba(2, 9, 6, 0.45) 0%, rgba(2, 9, 6, 0.65) 80%);
+  z-index: 5;
+  pointer-events: none;
+}
+
+.kinetic-hero-content {
+  position: relative;
+  z-index: 10;
+  text-align: center;
+  max-width: 680px;
+  padding: 36px 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  direction: rtl;
+}
+
+.hero-pill-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 16px;
+  border-radius: 99px;
+  background: rgba(16, 185, 129, 0.15);
+  border: 1px solid rgba(52, 211, 153, 0.4);
+  color: #34d399;
+  font-size: 13px;
+  font-weight: 700;
+  box-shadow: 0 0 16px rgba(16, 185, 129, 0.25);
+}
+
+.pill-pulse-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #34d399;
+  box-shadow: 0 0 8px #34d399;
+  animation: pulseDot 1.8s infinite;
+}
+
+@keyframes pulseDot {
+  0% { transform: scale(0.9); opacity: 0.6; }
+  50% { transform: scale(1.3); opacity: 1; }
+  100% { transform: scale(0.9); opacity: 0.6; }
+}
+
+.hero-kinetic-title {
+  font-size: ${typography.titleSize || 38}px;
+  font-weight: ${typography.titleWeight || 800};
+  color: ${typography.titleColor || "#fff8e7"};
+  line-height: 1.35;
+  margin: 0;
+}
+
+.beso-polygon-highlight {
+  background: ${media.kineticHighlightGradient || "linear-gradient(160deg, #4cd864 0%, #39b54a 50%, #2a8f38 100%)"};
+  clip-path: ${media.kineticClipPath || "polygon(50% 0px, 100% 10%, 94% 93%, 50% 100%, 6% 93%, 0px 10%)"};
+  padding: 0.25rem 1.2rem;
+  display: inline-block;
+  color: #03140a;
+  font-weight: 900;
+  box-shadow: 0 0 20px rgba(76, 216, 100, 0.4);
+  margin: 0 4px;
+}
+
+.hero-kinetic-desc {
+  font-size: ${typography.descSize || 16}px;
+  color: ${typography.descColor || "#c2d5cb"};
+  max-width: 540px;
+  line-height: 1.6;
+  margin: 0;
+}
+
+.sparkle-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 32px;
+  border-radius: 99px;
+  background: linear-gradient(135deg, #0d3b2e, #10b981);
+  border: 1px solid #34d399;
+  color: #ffffff;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 8px 25px rgba(16, 185, 129, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  transition: all 0.3s ease;
+  user-select: none;
+}
+
+.sparkle-btn:hover {
+  transform: translateY(-2px) scale(1.03);
+  box-shadow: 0 12px 35px rgba(16, 185, 129, 0.55), 0 0 25px rgba(52, 211, 153, 0.6);
+  border-color: #6ee7b7;
+}
+
+.sparkle-icon {
+  width: 18px;
+  height: 18px;
+  animation: sparkleSpin 4s linear infinite;
+}
+
+@keyframes sparkleSpin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+${entranceKeyframes}`.trim();
+
+    return { html, css };
+  }
 
   // 0. HERO CANVAS 1: CYBERPUNK 3D PERSPECTIVE GRID HORIZON
   if (elementId === "hero-cyber-grid") {
@@ -3964,9 +5716,11 @@ ${entranceKeyframes}`.trim();
   100% { background-position: 0 40px; }
 }
 ${entranceKeyframes}
-${particleCss}`.trim();
+${particleCss}
+${customHeroBgLayerCss}`.trim();
 
     const html = `<div class="beso-hero-grid-wrapper">
+  ${customHeroBgLayerHtml}
   <div class="hero-horizon-glow"></div>
   <div class="hero-grid-plane"></div>
   ${particleHtml}
@@ -4100,9 +5854,11 @@ ${particleCss}`.trim();
   100% { filter: blur(80px) hue-rotate(360deg); }
 }
 ${entranceKeyframes}
-${particleCss}`.trim();
+${particleCss}
+${customHeroBgLayerCss}`.trim();
 
     const html = `<div class="beso-hero-aurora-wrapper">
+  ${customHeroBgLayerHtml}
   <div class="aurora-blob blob-1"></div>
   <div class="aurora-blob blob-2"></div>
   <div class="aurora-blob blob-3"></div>
@@ -4250,9 +6006,11 @@ ${particleCss}`.trim();
   100% { opacity: 0.9; }
 }
 ${entranceKeyframes}
-${particleCss}`.trim();
+${particleCss}
+${customHeroBgLayerCss}`.trim();
 
     const html = `<div class="beso-hero-cosmic-wrapper">
+  ${customHeroBgLayerHtml}
   <div class="nebula-core"></div>
   <div class="orbit-ring ring-outer"></div>
   <div class="orbit-ring ring-inner"></div>
@@ -4385,9 +6143,11 @@ ${particleCss}`.trim();
   line-height: 1.5;
 }
 ${entranceKeyframes}
-${particleCss}`.trim();
+${particleCss}
+${customHeroBgLayerCss}`.trim();
 
     const html = `<div class="beso-hero-vortex-wrapper" style="position: relative; overflow: hidden;">
+  ${customHeroBgLayerHtml}
   <div class="vortex-core"></div>
   <div class="vortex-spiral spiral-1"></div>
   <div class="vortex-spiral spiral-2"></div>
@@ -4491,9 +6251,11 @@ ${particleCss}`.trim();
   line-height: 1.5;
 }
 ${entranceKeyframes}
-${particleCss}`.trim();
+${particleCss}
+${customHeroBgLayerCss}`.trim();
 
     const html = `<div class="beso-hero-prism-wrapper" style="position: relative; overflow: hidden;">
+  ${customHeroBgLayerHtml}
   <div class="prism-refraction-bg"></div>
   <div class="prism-border-beam"></div>
   <div class="hero-content-layer" style="position: relative; z-index: 10;">
@@ -4637,9 +6399,11 @@ ${particleCss}`.trim();
   line-height: 1.5;
 }
 ${entranceKeyframes}
-${particleCss}`.trim();
+${particleCss}
+${customHeroBgLayerCss}`.trim();
 
     const html = `<div class="beso-hero-portal-wrapper">
+  ${customHeroBgLayerHtml}
   <div class="portal-bg-glow"></div>
   <div class="portal-ring ring-outer"></div>
   <div class="portal-ring ring-middle"></div>
@@ -4652,6 +6416,385 @@ ${particleCss}`.trim();
   </div>
   ${particleHtml}
 </div>`;
+
+    return { html, css };
+  }
+
+  // BATCH 17: COMPOUND MEDIA CARD (compound-media-card)
+  if (elementId === "compound-media-card") {
+    const titleText = escapeHtml(typography.titleText || "عنوان البطاقة المركبة");
+    const descText = escapeHtml(typography.descText || "هذا النص يمثل الوصف التفصيلي للبطاقة مع دعم كامل للفيزياء والتوهج الزجاجي.");
+    const badgeText = escapeHtml(state.badgeParams?.text || typography.badgeText || "منتج مميز");
+    const buttonText = escapeHtml(typography.buttonText || "استكشف التفاصيل");
+    const customImgUrl = media.customImgUrl || media.heroBgImage || "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=800&auto=format&fit=crop";
+    const objectFit = media.objectFit || "cover";
+    const imgWidth = media.imageWidth ? (typeof media.imageWidth === "number" ? `${media.imageWidth}px` : media.imageWidth) : "100%";
+    const imgHeight = `${media.imageHeight || 200}px`;
+    const titleColor = typography.titleColor || "#fff8e7";
+    const titleSize = typography.titleSize || 22;
+    const descColor = typography.descColor || "#eae5d9";
+    const descSize = typography.descSize || 14;
+    const mainColor = lighting.colorStop1 || state.globalParams?.mainColor || "#16157f";
+    const cardHoverCSS = getHoverCSS(".beso-compound-card");
+
+    const css = `.beso-compound-card {
+  width: ${dimensions.width}px;
+  max-width: 100%;
+  padding: ${dimensions.padding}px;
+  border-radius: ${dimensions.borderRadius}px;
+  ${surfaceCSSBlock.trim()}
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  box-sizing: border-box;
+  font-family: inherit;
+  transition: all ${animations.transitionSpeed}s cubic-bezier(0.16, 1, 0.3, 1);
+  animation: besoEntrance-${animations.entranceAnimation} 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+${cardHoverCSS}
+
+.media-frame-wrapper {
+  position: relative;
+  width: ${imgWidth};
+  max-width: 100%;
+  height: ${imgHeight};
+  border-radius: ${Math.max(8, dimensions.borderRadius - 4)}px;
+  overflow: hidden;
+  border: 1px solid ${hexToRgba(lighting.glowColor, 0.35)};
+  box-shadow: inset 0 1px 3px rgba(255, 255, 255, 0.2), 0 8px 20px rgba(0, 0, 0, 0.4);
+}
+
+.compound-img {
+  width: 100%;
+  height: 100%;
+  object-fit: ${objectFit};
+  transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.beso-compound-card:hover .compound-img {
+  transform: scale(1.06);
+}
+
+.img-overlay-glow {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.6) 0%, transparent 60%);
+  pointer-events: none;
+}
+
+.compound-card-content {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  text-align: ${typography.textAlign};
+}
+
+.compound-badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 99px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  background: ${hexToRgba(lighting.glowColor, 0.2)};
+  color: ${lighting.glowColor};
+  border: 1px solid ${hexToRgba(lighting.glowColor, 0.4)};
+  width: fit-content;
+}
+
+.compound-title {
+  margin: 0;
+  font-size: ${titleSize}px;
+  font-weight: ${typography.titleWeight || 700};
+  color: ${titleColor};
+  line-height: 1.3;
+  ${textShadowCSS}
+}
+
+.compound-desc {
+  margin: 0;
+  font-size: ${descSize}px;
+  font-weight: ${typography.descWeight || 400};
+  color: ${descColor};
+  line-height: 1.6;
+  opacity: 0.9;
+}
+
+.compound-action-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 6px;
+  padding: 10px 20px;
+  border-radius: ${Math.max(8, dimensions.borderRadius - 4)}px;
+  background: ${mainColor};
+  color: #ffffff;
+  font-size: ${typography.buttonSize || 14}px;
+  font-weight: 700;
+  border: 1px solid ${hexToRgba(lighting.glowColor, 0.5)};
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  width: fit-content;
+}
+
+.compound-action-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5), 0 0 15px ${hexToRgba(lighting.glowColor, 0.6)};
+  filter: brightness(1.1);
+}
+${entranceKeyframes}`.trim();
+
+    const html = `<div class="beso-compound-card material-${surfaceStyle}">
+  <!-- Top Media Frame with Ratio & Size Binding -->
+  <div class="media-frame-wrapper" style="width: ${imgWidth}; height: ${imgHeight};">
+    <img src="${customImgUrl}" alt="Media Card" class="compound-img" style="object-fit: ${objectFit};" />
+    <div class="img-overlay-glow"></div>
+  </div>
+
+  <!-- Content Layer -->
+  <div class="compound-card-content">
+    <span class="compound-badge">${badgeText}</span>
+    <h3 class="compound-title" style="color: ${titleColor}; font-size: ${titleSize}px;">${titleText}</h3>
+    <p class="compound-desc" style="color: ${descColor}; font-size: ${descSize}px;">${descText}</p>
+    
+    <!-- Action Button -->
+    <button class="compound-action-btn" style="background: ${mainColor}; color: #fff;">
+      ${buttonText}
+    </button>
+  </div>
+</div>`;
+
+    return { html, css };
+  }
+
+  // BATCH 18: MAGIC BENTO CARD COMPONENT (magic-bento-card)
+  if (elementId === "magic-bento-card") {
+    const step = escapeHtml(media.bentoStep || "04");
+    const category = escapeHtml(media.bentoCategory || "منهجية العمل");
+    const title = escapeHtml(media.bentoTitle || typography.titleText || "التطوير");
+    const desc = escapeHtml(media.bentoDescription || typography.descText || "ننفذ بكود منظم، تكاملات آمنة، وقاعدة بيانات قابلة للتوسع مع المشروع.");
+    const bgImage = media.bentoBgImage || "https://images.unsplash.com/photo-1555066931-4365d14bab8c?q=80&w=800&auto=format&fit=crop";
+    const glowRadius = clamp(media.bentoGlowRadius ?? 280, 100, 500);
+    const glowIntensity = clamp(media.bentoGlowIntensity ?? 0.85, 0.1, 1);
+    const glowColor = media.bentoGlowColor || "rgba(57, 181, 74, 0.35)";
+    const cardW = dimensions.width || 380;
+    const cardRadius = dimensions.borderRadius || 20;
+
+    const html = `<div class="magic-bento-card magic-bento-card--glow" style="--glow-radius: ${glowRadius}px; --glow-color: ${glowColor};">
+  <!-- خلفية الصورة مع طبقة التعتيم المتدرجة -->
+  <div class="bento-bg-layer" style="background-image: url('${bgImage}');"></div>
+  <div class="bento-overlay-gradient"></div>
+
+  <!-- المحتوى الداخلي للبطاقة -->
+  <div class="bento-card-inner">
+    <div class="bento-header-row">
+      <span class="bento-step-badge">${step}</span>
+      <span class="bento-category-tag">${category}</span>
+    </div>
+
+    <div class="bento-body">
+      <h3 class="bento-title">${title}</h3>
+      <p class="bento-desc">${desc}</p>
+    </div>
+
+    <div class="bento-footer">
+      <div class="bento-indicator">
+        <span class="indicator-dot"></span>
+        <span class="indicator-text">منهجية معتمدة</span>
+      </div>
+      <div class="bento-arrow-icon">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M5 12h14M12 5l7 7-7 7" />
+        </svg>
+      </div>
+    </div>
+  </div>
+</div>`;
+
+    const css = `.magic-bento-card {
+  --glow-x: 50%;
+  --glow-y: 50%;
+  --glow-intensity: 0;
+  --glow-radius: ${glowRadius}px;
+  --glow-color: ${glowColor};
+  position: relative;
+  width: ${cardW}px;
+  max-width: 100%;
+  min-height: 380px;
+  border-radius: ${cardRadius}px;
+  background: #06150e;
+  border: 1px solid rgba(52, 211, 153, 0.25);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  overflow: hidden;
+  box-sizing: border-box;
+  direction: rtl;
+  font-family: inherit;
+  cursor: pointer;
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.35s ease, box-shadow 0.35s ease;
+  animation: besoEntrance-${animations.entranceAnimation} 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.magic-bento-card:hover {
+  transform: translateY(-4px);
+  border-color: rgba(52, 211, 153, 0.6);
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.75), 0 0 30px rgba(16, 185, 129, 0.2);
+}
+
+.magic-bento-card--glow::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 2;
+  border-radius: inherit;
+  background: radial-gradient(
+    var(--glow-radius) circle at var(--glow-x) var(--glow-y),
+    var(--glow-color) 0%,
+    transparent 100%
+  );
+  opacity: var(--glow-intensity);
+  transition: opacity 0.25s ease;
+}
+
+.bento-bg-layer {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  filter: saturate(1.1) brightness(0.65);
+  transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  z-index: 0;
+}
+
+.magic-bento-card:hover .bento-bg-layer {
+  transform: scale(1.05);
+}
+
+.bento-overlay-gradient {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(6, 21, 14, 0.3) 0%, rgba(3, 10, 7, 0.85) 60%, rgba(2, 8, 5, 0.98) 100%);
+  z-index: 1;
+}
+
+.bento-card-inner {
+  position: relative;
+  z-index: 3;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 100%;
+  min-height: 380px;
+  box-sizing: border-box;
+}
+
+.bento-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.bento-step-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: monospace;
+  font-size: 14px;
+  font-weight: 800;
+  color: #34d399;
+  background: rgba(16, 185, 129, 0.15);
+  border: 1px solid rgba(52, 211, 153, 0.35);
+  border-radius: 10px;
+  padding: 4px 10px;
+  box-shadow: 0 0 12px rgba(16, 185, 129, 0.2);
+}
+
+.bento-category-tag {
+  font-size: 12px;
+  font-weight: 600;
+  color: #a7f3d0;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 99px;
+  padding: 4px 14px;
+  backdrop-filter: blur(8px);
+}
+
+.bento-body {
+  margin-top: auto;
+  margin-bottom: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.bento-title {
+  margin: 0;
+  font-size: ${typography.titleSize || 24}px;
+  font-weight: ${typography.titleWeight || 800};
+  color: ${typography.titleColor || "#f0fdf4"};
+  line-height: 1.3;
+}
+
+.bento-desc {
+  margin: 0;
+  font-size: ${typography.descSize || 14}px;
+  font-weight: ${typography.descWeight || 400};
+  color: ${typography.descColor || "#cbd5e1"};
+  line-height: 1.6;
+}
+
+.bento-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 14px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.bento-indicator {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.indicator-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #10b981;
+  box-shadow: 0 0 10px #10b981;
+}
+
+.indicator-text {
+  font-size: 12px;
+  color: #94a3b8;
+}
+
+.bento-arrow-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.1);
+  color: #34d399;
+  transition: all 0.3s ease;
+}
+
+.magic-bento-card:hover .bento-arrow-icon {
+  background: #10b981;
+  color: #020a06;
+  transform: translateX(-4px);
+}
+${entranceKeyframes}`.trim();
 
     return { html, css };
   }
@@ -5025,8 +7168,90 @@ ${entranceKeyframes}`.trim();
 }
 
 /**
+ * Auto-Generated JavaScript Engine with Audio & Spotlight Physics
+ */
+export function generateElementJs(elementId, state = {}) {
+  return `// Auto-Generated Beso Studio JS Engine
+document.addEventListener('DOMContentLoaded', () => {
+  const ctaBtn = document.querySelector('.sparkle-btn');
+  const bentoCard = document.querySelector('.magic-bento-card');
+
+  // Sparkle Button Sound Trigger
+  if (ctaBtn) {
+    ctaBtn.addEventListener('click', () => {
+      if (typeof SoundLibrary !== 'undefined') SoundLibrary.play('neon_click');
+    });
+  }
+
+  // Bento Mouse Tracking Glow Physics
+  if (bentoCard) {
+    bentoCard.addEventListener('mousemove', (e) => {
+      const rect = bentoCard.getBoundingClientRect();
+      const x = ((e.clientX - rect.left) / rect.width) * 100;
+      const y = ((e.clientY - rect.top) / rect.height) * 100;
+      bentoCard.style.setProperty('--glow-x', \`\${x}%\`);
+      bentoCard.style.setProperty('--glow-y', \`\${y}%\`);
+      bentoCard.style.setProperty('--glow-intensity', '1');
+    });
+    bentoCard.addEventListener('mouseleave', () => {
+      bentoCard.style.setProperty('--glow-intensity', '0');
+    });
+  }
+
+  // Split Hero Synchronized Dual Column Auto-Slider
+  const splitHero = document.querySelector('.split-hero-banner');
+  if (splitHero) {
+    const rightSlides = splitHero.querySelectorAll('.col-right .slide-image');
+    const leftSlides = splitHero.querySelectorAll('.col-left .slide-image');
+    let currentIdx = 0;
+    const total = Math.max(rightSlides.length, leftSlides.length);
+    if (total > 1) {
+      setInterval(() => {
+        currentIdx = (currentIdx + 1) % total;
+        rightSlides.forEach((s, i) => s.classList.toggle('active', i === currentIdx));
+        leftSlides.forEach((s, i) => s.classList.toggle('active', i === currentIdx));
+      }, ${Math.round((state.media?.splitHeroInterval || 2.0) * 1000)});
+    }
+  }
+});`;
+}
+
+/**
+ * Universal element code generator returning { html, css, js }.
+ */
+export function generateElementCode(elementIdOrState, maybeState) {
+  let elementId;
+  let state;
+  if (typeof elementIdOrState === "string") {
+    elementId = elementIdOrState;
+    state = maybeState || {};
+  } else {
+    state = elementIdOrState || {};
+    elementId = state.activeElement || "button";
+  }
+
+  const result = generateElementCodeCore(elementId, state);
+  const js = generateElementJs(elementId, state);
+
+  return {
+    ...result,
+    js,
+  };
+}
+
+/**
  * Backward compatibility alias for tests & button exports.
  */
 export function generateFinalCode(state) {
   return generateElementCode("button", state);
 }
+
+export {
+  COMPONENT_ALLOWED_CATEGORIES,
+  ELEMENT_PRESETS,
+  EFFECT_PRESETS,
+  PRESETS,
+  getComponentAllowedCategories,
+} from "../data/effects.js";
+
+
